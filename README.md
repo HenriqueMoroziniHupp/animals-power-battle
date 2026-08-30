@@ -1,4 +1,4 @@
-# Power Animal Battle
+# Animals Power Battle
 
 > Cace, evolua e domine três biomas. Um jogo 3D low-poly que roda direto no
 > navegador — sem download, sem plugin, em desktop e celular.

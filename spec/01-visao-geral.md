@@ -1,4 +1,4 @@
-# Power Animal Battle — Visão Geral
+# Animals Power Battle — Visão Geral
 
 Jogo 3D low-poly de navegador no estilo "Low-Poly Wilderness / Survival RPG".
 Cace recursos e animais, acumule EVO, evolua de espécie e domine três biomas.

@@ -1,4 +1,4 @@
-# Especificação — Power Animal Battle
+# Especificação — Animals Power Battle
 
 Documentação de como o jogo foi construído: requisitos, decisões e armadilhas.
 
