@@ -80,18 +80,31 @@ export const ATTACKS = {
      * Sem isso é preciso mirar quase exatamente no bicho, o que fica bem
      * difícil quando ele está se movendo e te atacando.
      */
+    /**
+     * Auxílio de mira que DECAI COM A DISTÂNCIA: forte de perto, fraco de longe.
+     *
+     * Cuidado com a geometria: um cone de ângulo FIXO perdoa mais quanto mais
+     * longe está o alvo (a tolerância lateral cresce com a distância —
+     * 2.4 unidades a 5 un., mas 16.6 a 34 un.), que é o inverso do desejado.
+     * Por isso interpolamos ângulo E força entre `near` e `far`.
+     *
+     * O ângulo é medido SÓ NO PLANO HORIZONTAL: num terreno inclinado o
+     * desnível sozinho consumia todo o cone (11.8° de 12°) e o auxílio nunca
+     * agia. Ver spec/03-armadilhas.md #11.
+     */
     aimAssist: {
-      /**
-       * Meio-ângulo do cone de busca, em graus, medido SÓ NO PLANO HORIZONTAL.
-       * Ignorar a altura é essencial: num terreno inclinado o desnível sozinho
-       * já consumia todo o cone (medido: 11.8° de 12° só pela diferença de
-       * altura), e o auxílio nunca disparava.
-       */
-      coneAngle: 26,
-      /** Alcance máximo da busca por alvos. */
+      /** Até esta distância o auxílio está no máximo. */
+      nearDist: 6,
+      /** A partir desta distância o auxílio é mínimo (e some no `range`). */
+      farDist: 26,
+      /** Meio-ângulo do cone (graus) perto e longe. */
+      nearAngle: 30,
+      farAngle: 7,
+      /** Fração da correção aplicada perto e longe (1 = trava no alvo). */
+      nearStrength: 1,
+      farStrength: 0.35,
+      /** Alcance máximo da busca. */
       range: 34,
-      /** Quanto da correção é aplicada (1 = mira direto no alvo). */
-      strength: 1,
     },
   },
   flame: {
@@ -105,5 +118,20 @@ export const ATTACKS = {
     coneAngle: 25,
     /** Chance por tick de incendiar um prop inflamável atingido. */
     igniteChance: 0.5,
+
+    /**
+     * Auxílio de mira das chamas. Como o jato é curto (7-9.8 unidades), as
+     * distâncias são menores que as do laser — mas a mesma ideia vale:
+     * agressivo de perto, discreto no limite do alcance.
+     */
+    aimAssist: {
+      nearDist: 2.5,
+      farDist: 8,
+      nearAngle: 34,
+      farAngle: 10,
+      nearStrength: 0.9,
+      farStrength: 0.3,
+      range: 11,
+    },
   },
 }

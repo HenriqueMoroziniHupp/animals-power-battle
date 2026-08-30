@@ -30,9 +30,18 @@ Biomas trocam nos níveis **10** (Savana) e **22** (Rochosas), com interstitial.
 - Explosão no impacto + dano em área (55% do dano) + cratera + mancha no chão
 - Visual da explosão: bola de fogo compacta de 0.26s (curta de propósito,
   para não empilhar efeitos na cadência máxima)
-- **Auxílio de mira**: o tiro se direciona ao alvo (mob OU item) mais próximo
-  dentro de um cone de 26° à frente. Medido: taxa de acerto 8% → 54% girando
-  360°, e 14% → 89% em combate com mobs de 9 a 25 unidades.
+- **Auxílio de mira** (vale para laser E chamas): o tiro se direciona ao alvo
+  (mob OU item) mais próximo dentro de um cone à frente. A agressividade
+  **decai com a distância** — forte de perto, discreto de longe.
+
+| Distância | Cone | Correção | Acerto (erro ±20°) |
+|---|---|---|---|
+| 8 un | 30° | 100% | **100%** |
+| 16 un | ~18° | ~65% | **56%** |
+| 28 un | 7° | 35% | **11%** |
+
+  Config em `ATTACKS.laser.aimAssist` e `ATTACKS.flame.aimAssist`
+  (as chamas usam distâncias menores, já que o jato é curto).
 - Dano: 100% do ATK
 
 ### Chamas (tecla 2 / E)

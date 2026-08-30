@@ -191,3 +191,31 @@ corpo do alvo em 3D. A inclinação do terreno deixou de gastar o orçamento.
 
 > Vale para qualquer teste de "está à minha frente?" neste jogo: separar o
 > componente horizontal do vertical.
+
+---
+
+## 12. Cone de ângulo fixo perdoa MAIS de longe
+
+**Sintoma:** com auxílio de mira de cone fixo (26°), acertar alvos distantes
+ficou fácil demais.
+
+**Causa (geometria):** um cone de ângulo constante tem tolerância LATERAL que
+cresce com a distância:
+
+| Distância | Erro lateral perdoado (cone 26°) |
+|---|---|
+| 5 un | 2.4 |
+| 34 un | **16.6** |
+
+Ou seja, o comportamento natural do cone fixo é o INVERSO do desejado.
+
+**Correção:** `src/combat/attacks/aimAssist.js` interpola ângulo E força entre
+`nearDist` e `farDist`. O cone fecha de 30° para 7° e a correção cai de 100%
+para 35%, mantendo o erro lateral perdoado praticamente constante (~3-5 un).
+
+Verificado com um único mob e sem props (isolando a distância):
+100% de acerto a 8 un, 56% a 16 un, 11% a 28 un.
+
+> Ao testar mira, isole: outro mob mais próximo rouba o alvo (o auxílio escolhe
+> o mais perto, por design) e props no caminho bloqueiam o raio — os dois geram
+> falso negativo.

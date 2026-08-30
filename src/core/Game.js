@@ -27,6 +27,7 @@ import { Overlays } from '../ui/Overlays.js'
 import { Joystick } from '../ui/Joystick.js'
 import { TouchButtons } from '../ui/TouchButtons.js'
 import { BALANCE } from '../config/balance.js'
+import { applyAimAssist } from '../combat/attacks/aimAssist.js'
 
 /** Orquestrador: monta o mundo, roda o loop e conecta todos os sistemas. */
 export class Game {
@@ -133,6 +134,9 @@ export class Game {
       onPause: () => this.pauseForAd(),
       onResume: () => this.resumeFromAd(),
     })
+
+    // Exposto para diagnostico/testes de mira.
+    this.applyAimAssist = applyAimAssist
 
     this.clock = new THREE.Clock()
     this._raf = null

@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { additiveMat } from '../../config/palette.js'
 import { ATTACKS } from '../../config/balance.js'
+import { applyAimAssist } from './aimAssist.js'
 
 const ORIGIN = new THREE.Vector3()
 const DIR = new THREE.Vector3()
@@ -24,6 +25,10 @@ export class FlameAttack {
     // NAO usar `this.fire`: sombrearia o metodo fire() do prototipo.
     this.fireSystem = ctx.fire
     this.audio = ctx.audio
+    /** @type {(() => Array<object>)|null} */
+    this.getMobs = ctx.getMobs ?? null
+    /** @type {(() => Array<object>)|null} */
+    this.getProps = ctx.getProps ?? null
 
     this.active = false
     this._hold = 0
@@ -65,6 +70,9 @@ export class FlameAttack {
 
     player.getMuzzle(ORIGIN)
     player.getForward(DIR)
+    // Auxílio de mira: gira a direção do CONE inteiro para o alvo mais
+    // próximo, entao o jato inteiro (dano + visual) acompanha.
+    applyAimAssist(ORIGIN, DIR, player, this, this.cfg.aimAssist)
 
     // Com o booster o jato alcanca mais longe e abre um pouco mais.
     const power = this.combat.attackMultiplier
@@ -118,6 +126,8 @@ export class FlameAttack {
 
     player.getMuzzle(ORIGIN)
     player.getForward(DIR)
+    // Mesma correcao do dano: o visual nao pode apontar para outro lado.
+    applyAimAssist(ORIGIN, DIR, player, this, this.cfg.aimAssist)
     this.group.visible = true
     this.group.position.copy(ORIGIN)
 

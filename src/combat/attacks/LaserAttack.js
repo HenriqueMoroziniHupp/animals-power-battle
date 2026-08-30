@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { additiveMat } from '../../config/palette.js'
 import { ATTACKS } from '../../config/balance.js'
+import { applyAimAssist } from './aimAssist.js'
 
 const DIR = new THREE.Vector3()
 const ORIGIN = new THREE.Vector3()
@@ -60,86 +61,13 @@ export class LaserAttack {
    * @param {object} player
    * @param {THREE.Camera} camera usada para limitar o alcance ao visível
    */
-  /**
-   * Auxílio de mira: direciona o tiro para o alvo mais próximo que esteja
-   * dentro de um cone à frente do jogador.
-   *
-   * Vale para MOBS e para ITENS do cenário (árvores, pedras, cactos) — sem
-   * isso é preciso mirar quase exatamente no alvo, o que fica muito difícil
-   * quando um bicho está se movendo e te atacando.
-   *
-   * Detalhe importante: o cone é medido SÓ NO PLANO HORIZONTAL. O terreno é
-   * acidentado, e se a altura entrasse na conta o desnível sozinho já estouraria
-   * o cone (medido: 11.8° de 12° apenas pela diferença de altura), fazendo o
-   * auxílio nunca agir. A mira final aponta para o corpo do alvo em 3D.
-   *
-   * @param {THREE.Vector3} origin
-   * @param {THREE.Vector3} dir alterado no lugar
-   * @param {object} player
-   */
-  _applyAimAssist(origin, dir, player) {
-    const cfg = this.cfg.aimAssist
-    if (!cfg) return
-
-    const cosLimit = Math.cos((cfg.coneAngle * Math.PI) / 180)
-
-    // Direção da mira projetada no plano horizontal.
-    const aimLen = Math.hypot(dir.x, dir.z)
-    if (aimLen < 1e-6) return
-    const ax = dir.x / aimLen
-    const az = dir.z / aimLen
-
-    let melhor = null
-    let melhorDist = Infinity
-
-    /** Considera um alvo se estiver no cone; guarda o MAIS PRÓXIMO. */
-    const considerar = (e) => {
-      if (!e || e.dead || e === player) return
-      const tx = e.position.x - origin.x
-      const tz = e.position.z - origin.z
-      const distH = Math.hypot(tx, tz)
-      if (distH > cfg.range || distH < 0.001) return
-
-      // Ângulo só no plano horizontal (ver nota acima).
-      const dot = (tx * ax + tz * az) / distH
-      if (dot < cosLimit) return
-
-      if (distH < melhorDist) {
-        melhorDist = distH
-        melhor = e
-      }
-    }
-
-    // Mobs vivos...
-    const mobs = this.getMobs?.()
-    if (mobs) for (const m of mobs) considerar(m)
-    // ...e itens do cenário (árvores, pedras, cactos).
-    const props = this.getProps?.()
-    if (props) for (const p of props) considerar(p)
-
-    if (!melhor) return
-
-    // Aponta para o corpo do alvo (não para o pé dele).
-    const tx = melhor.position.x - origin.x
-    const ty = (melhor.position.y + (melhor.hitHeight ?? 1)) - origin.y
-    const tz = melhor.position.z - origin.z
-    const len = Math.hypot(tx, ty, tz)
-    if (len < 1e-6) return
-
-    const t = cfg.strength
-    dir.x += (tx / len - dir.x) * t
-    dir.y += (ty / len - dir.y) * t
-    dir.z += (tz / len - dir.z) * t
-    dir.normalize()
-  }
-
   fire(player, camera) {
     if (!this.ready) return false
     this.cooldown = this.cfg.cooldown
 
     player.getMuzzle(ORIGIN)
     player.getForward(DIR)
-    this._applyAimAssist(ORIGIN, DIR, player)
+    applyAimAssist(ORIGIN, DIR, player, this)
 
     // Alcance nunca maior que o que cabe na tela.
     const visible = Math.max(12, camera.far * 0.12)
