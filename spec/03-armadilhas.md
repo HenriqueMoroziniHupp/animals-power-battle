@@ -140,3 +140,37 @@ de `.hud-layer`. Listeners nesse elemento nunca disparam.
 ponteiro some e a chamada lança `NotFoundError`, derrubando o input.
 
 **Correção:** envolvido em `try/catch` nos três pontos de uso.
+
+---
+
+## 10. Explosão "Saturno" e material compartilhado nos FX
+
+**Sintoma:** com o laser a 10 tiros/s, a tela enchia de anéis amarelos gigantes
+empilhados, escondendo o player e os mobs.
+
+**Três causas somadas:**
+1. Um `RingGeometry` horizontal que expandia até **2.9x o raio** — era ele que
+   parecia o "anel de Saturno".
+2. `maxLife: 0.62s` com cooldown de 0.1s → até ~6 explosões vivas ao mesmo tempo.
+3. Escala da esfera até 1.55x o raio, extrapolando o ponto de impacto.
+
+**Correção** (`fx/ExplosionFX.js`):
+- Anel **removido**.
+- Vida 0.62s → **0.26s** (medido: de ~6 para média 1.9 explosões simultâneas).
+- Bola de fogo feita de 5 blobs facetados com viés para cima, em vez de uma
+  esfera perfeita; escala máxima ~1.0x o raio.
+- Clarão branco curto no impacto.
+- Raio visual passou de `explosionRadius * 0.55` para `* 0.38`.
+
+**Armadilha dentro da armadilha:** os FX chamavam `additiveMat()`, que devolve
+material **compartilhado por cor** (ver armadilha 1 do flash de dano). Mutar
+`material.opacity` por instância faria todas as explosões desvanecerem juntas, e
+uma explosão nova herdaria a opacidade de uma que estava morrendo.
+
+**Correção:** `.clone()` uma única vez na criação do pool. São 5 explosões x
+(1 clarão + 5 blobs + 6 faíscas) = 60 materiais criados no boot e reusados para
+sempre — sem alocação durante o combate. Verificado: 25 materiais únicos para os
+25 blobs do pool.
+
+> **Regra geral:** qualquer FX que anime `opacity`/`color` por instância precisa
+> de material clonado. O cache compartilhado só serve para materiais estáticos.

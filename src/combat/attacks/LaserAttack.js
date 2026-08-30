@@ -79,17 +79,32 @@ export class LaserAttack {
     if (hit.body) this.combat.damageTarget(hit.body, dmg, player)
 
     // Explosão + dano em área + cratera.
-    this.explosions.spawn(hit.point, this.cfg.explosionRadius * 0.55)
+    // 0.38: o visual fica menor que o raio de DANO (4.2), mantendo a
+    // explosao contida no ponto de impacto mesmo a 10 tiros/s.
+    // O multiplicador do booster vai junto: com o poder aumentado a explosao
+    // ganha a onda de choque em anel e fica maior.
+    const power = this.combat.attackMultiplier
+    const boostScale = 1 + (power - 1) * 0.5
+    this.explosions.spawn(
+      hit.point,
+      this.cfg.explosionRadius * 0.38 * boostScale,
+      power,
+    )
     this.combat.areaDamage(
       hit.point, this.cfg.explosionRadius,
       dmg * this.cfg.splashMult, player, hit.body,
     )
+    // Com o poder aumentado a cratera fica bem maior e mais funda —
+    // destruicao de solo visivelmente mais forte.
+    // O piso de `Terrain._craterFloor` continua garantindo que nem a versao
+    // turbinada cave abaixo da agua (senao volta a mancha amarela).
     this.terrain.makeCrater(
       hit.point.x, hit.point.z,
-      this.cfg.craterRadius, this.cfg.craterDepth,
+      this.cfg.craterRadius * (1 + (power - 1) * 1.1),
+      this.cfg.craterDepth * (1 + (power - 1) * 1.6),
     )
-    // Mancha de queimado permanente no chão do impacto.
-    this.scorch?.spawn(hit.point, this.cfg.craterRadius)
+    // Mancha de queimado permanente no chão do impacto, na mesma proporcao.
+    this.scorch?.spawn(hit.point, this.cfg.craterRadius * (1 + (power - 1) * 0.9))
     this.audio?.play('laser')
     this.audio?.play('explosion')
     return true
