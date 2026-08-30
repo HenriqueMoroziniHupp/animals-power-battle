@@ -174,3 +174,20 @@ sempre — sem alocação durante o combate. Verificado: 25 materiais únicos pa
 
 > **Regra geral:** qualquer FX que anime `opacity`/`color` por instância precisa
 > de material clonado. O cache compartilhado só serve para materiais estáticos.
+
+---
+
+## 11. Cone de mira não pode considerar a altura
+
+**Sintoma:** o auxílio de mira nunca corrigia nada, mesmo com o alvo à frente.
+
+**Causa:** o cone era medido em 3D. Como o terreno é acidentado, o alvo quase
+sempre está acima ou abaixo do focinho do player, e esse desnível sozinho já
+consumia o orçamento angular. Medido: um mob 3.17 unidades abaixo da origem
+ficava a **11.8° de um cone de 12°** — sem nenhum erro horizontal de mira.
+
+**Correção:** o cone é medido **só no plano XZ**; a mira final aponta para o
+corpo do alvo em 3D. A inclinação do terreno deixou de gastar o orçamento.
+
+> Vale para qualquer teste de "está à minha frente?" neste jogo: separar o
+> componente horizontal do vertical.

@@ -74,6 +74,25 @@ export const ATTACKS = {
     /** Profundidade da cratera aberta no terreno. */
     craterDepth: 0.35,
     craterRadius: 2.2,
+
+    /**
+     * Auxílio de mira: o tiro corrige em direção a mobs que passariam perto.
+     * Sem isso é preciso mirar quase exatamente no bicho, o que fica bem
+     * difícil quando ele está se movendo e te atacando.
+     */
+    aimAssist: {
+      /**
+       * Meio-ângulo do cone de busca, em graus, medido SÓ NO PLANO HORIZONTAL.
+       * Ignorar a altura é essencial: num terreno inclinado o desnível sozinho
+       * já consumia todo o cone (medido: 11.8° de 12° só pela diferença de
+       * altura), e o auxílio nunca disparava.
+       */
+      coneAngle: 26,
+      /** Alcance máximo da busca por alvos. */
+      range: 34,
+      /** Quanto da correção é aplicada (1 = mira direto no alvo). */
+      strength: 1,
+    },
   },
   flame: {
     id: 'flame',

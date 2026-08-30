@@ -30,6 +30,9 @@ Biomas trocam nos níveis **10** (Savana) e **22** (Rochosas), com interstitial.
 - Explosão no impacto + dano em área (55% do dano) + cratera + mancha no chão
 - Visual da explosão: bola de fogo compacta de 0.26s (curta de propósito,
   para não empilhar efeitos na cadência máxima)
+- **Auxílio de mira**: o tiro se direciona ao alvo (mob OU item) mais próximo
+  dentro de um cone de 26° à frente. Medido: taxa de acerto 8% → 54% girando
+  360°, e 14% → 89% em combate com mobs de 9 a 25 unidades.
 - Dano: 100% do ATK
 
 ### Chamas (tecla 2 / E)

@@ -86,6 +86,10 @@ export class Game {
       scorch: this.scorch,
       fire: this.fire,
       audio: this.audio,
+      // Auxílio de mira: o laser precisa da lista de mobs vivos. Passado como
+      // função porque `this.mobs` é recriado a cada troca de bioma.
+      getMobs: () => this.mobs,
+      getProps: () => this.world.props,
     })
     this.currentAttack = this.attacks.laser
 
