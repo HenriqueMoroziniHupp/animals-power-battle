@@ -1,7 +1,98 @@
 # Power Animal Battle
 
-Jogo 3D low-poly de navegador — cace, evolua e domine três biomas.
-Three.js + Vite, sem assets binários (toda a geometria é procedural).
+> Cace, evolua e domine três biomas. Um jogo 3D low-poly que roda direto no
+> navegador — sem download, sem plugin, em desktop e celular.
+
+Three.js + Vite. **Zero assets binários**: toda a geometria, os efeitos e até
+o áudio são gerados por código. O build inteiro tem ~145 KB gzip.
+
+![Animals Power Battle](docs/screenshots/hero-animal-power-battle.jpeg)
+
+---
+
+## Um calango. Um laser. Uma capivara.
+
+<table>
+<tr>
+<td width="58%">
+
+![Calango disparando laser numa capivara](docs/screenshots/laser-capivara.jpg)
+
+**No jogo de verdade.** O laser trava no alvo mais próximo, explode no impacto
+e ainda cava o terreno — até 10 tiros por segundo.
+
+</td>
+<td width="42%">
+
+![Animals Power Battle — vertical](docs/screenshots/hero-animal-power-battle-mobile.jpeg)
+
+</td>
+</tr>
+</table>
+
+---
+
+## O jogo
+
+<table>
+<tr>
+<td width="50%">
+
+![Lança-chamas incendiando a floresta](docs/screenshots/chamas.jpg)
+
+**🔥 Chamas** — dano alto e curto alcance. Incendeia a vegetação, e o fogo
+se propaga sozinho para as árvores vizinhas.
+
+</td>
+<td width="50%">
+
+![Big Kong nas Terras Rochosas](docs/screenshots/bigkong-rochosas.jpg)
+
+**🦍 Big Kong, nível 29** — a forma final, cercada de leões e rinocerontes.
+ATK 1299, HP 5480.
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="50%">
+
+![Jogando no celular](docs/screenshots/mobile.jpg)
+
+**📱 Mobile de verdade** — joystick virtual, botão de ataque e troca de arma.
+Dá para andar, atirar e girar a câmera com três dedos ao mesmo tempo.
+
+</td>
+<td width="50%">
+
+![Tela inicial](docs/screenshots/menu.jpg)
+
+**▶️ Entra e joga** — o progresso fica salvo, então dá para fechar e voltar
+depois de onde parou.
+
+</td>
+</tr>
+</table>
+
+---
+
+## Evolução
+
+Você começa como um **calango** franzino e termina como **Big Kong**:
+
+| Nível | Espécie | HP | ATK |
+|---|---|---|---|
+| 1 | 🦎 Calango | 100 | 10 |
+| 5 | 🦊 Raposa | 165 | 17 |
+| 10 | 🐺 Lobo | 260 | 28 |
+| 16 | 🐆 Pantera | 400 | 44 |
+| 22 | 🐻 Urso | 640 | 66 |
+| 28 | 🦍 Big Kong | 1000 | 105 |
+
+E o mundo muda com você: **Floresta** → **Savana** (nível 10) →
+**Terras Rochosas** (nível 22).
 
 ## Rodar
 
@@ -32,6 +123,14 @@ npm run preview  # serve o build de produção
 
 Calango (1) → Raposa (5) → Lobo (10) → Pantera (16) → Urso (22) → Big Kong (28).
 Biomas trocam nos níveis 10 (Savana) e 22 (Terras Rochosas), com interstitial.
+
+## Progresso salvo
+
+O progresso fica em `localStorage` e sobrevive a fechar o navegador.
+
+- **Ao morrer:** perde 1 nível (nunca abaixo de 1), mantém o resto
+- **F5 / fechar aba:** volta exatamente de onde parou
+- **Menu → APAGAR PROGRESSO:** recomeça do zero (pede confirmação)
 
 ## Monetização
 
