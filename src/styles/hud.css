@@ -1,0 +1,430 @@
+:root {
+  --evo-a: #4fc3f7;
+  --evo-b: #81d4fa;
+  --hp-a: #ff4d6d;
+  --hp-b: #ff8fa3;
+  --gold: #ffd166;
+  --panel: rgba(16, 22, 30, 0.72);
+  --panel-line: rgba(255, 255, 255, 0.16);
+  --text: #f4f7fb;
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --radius: 14px;
+  --hud-font: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0b1016;
+  font-family: var(--hud-font);
+  color: var(--text);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  touch-action: none;
+}
+
+#game-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* A camada do HUD nunca rouba o toque do canvas.
+   Só os controles reativam pointer-events. */
+.hud-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.hud-layer button { pointer-events: auto; }
+
+.hud-layer.hidden { display: none; }
+
+/* ---------- Topo esquerda ---------- */
+.hud-topleft {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  left: max(12px, env(safe-area-inset-left));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.icon-btn:active { transform: scale(0.93); }
+
+.scoreboard {
+  display: flex;
+  gap: 8px;
+}
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  font-variant-numeric: tabular-nums;
+}
+.score-icon { font-size: 15px; }
+
+/* ---------- Boosters ---------- */
+.booster-panel {
+  position: absolute;
+  left: max(12px, env(safe-area-inset-left));
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.booster-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 210px;
+  padding: 10px 12px;
+  border: 1px solid var(--panel-line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease, border-color 0.2s ease;
+}
+.booster-btn:active { transform: scale(0.97); }
+
+.booster-ad {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #ff5f6d, #ff2d55);
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(255, 45, 85, 0.4);
+}
+
+.booster-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.booster-title { font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px; }
+.booster-sub { font-size: 11px; opacity: 0.78; font-weight: 700; }
+
+.booster-timer {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Barra de tempo restante do booster ativo */
+.booster-fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), #ffe9a8);
+  transition: width 0.25s linear;
+}
+
+.booster-btn.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.35), var(--shadow);
+}
+.booster-btn.active .booster-ad {
+  background: linear-gradient(135deg, #ffd166, #ffb703);
+  box-shadow: 0 2px 8px rgba(255, 183, 3, 0.45);
+}
+.booster-btn.pending { opacity: 0.55; pointer-events: none; }
+
+/* ---------- Barra inferior ---------- */
+.hud-bottom {
+  position: absolute;
+  left: 50%;
+  bottom: max(14px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  width: min(620px, calc(100vw - 24px));
+  background: var(--panel);
+  border: 1px solid var(--panel-line);
+  border-radius: 16px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow);
+}
+
+.level-box {
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-areas: 'label num' 'species species';
+  align-items: center;
+  gap: 0 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.22), rgba(79, 195, 247, 0.06));
+  border: 1px solid rgba(79, 195, 247, 0.35);
+  min-width: 104px;
+}
+.level-label { grid-area: label; font-size: 10px; font-weight: 800; opacity: 0.7; letter-spacing: 1px; }
+.level-num { grid-area: num; font-size: 20px; font-weight: 900; line-height: 1; color: var(--evo-b); font-variant-numeric: tabular-nums; }
+.level-species { grid-area: species; font-size: 12px; font-weight: 700; opacity: 0.92; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.bars { flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+
+.bar {
+  position: relative;
+  height: 20px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.bar-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  border-radius: 10px 0 0 10px;
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.evo-bar .bar-fill {
+  background: linear-gradient(90deg, var(--evo-a), var(--evo-b));
+  box-shadow: 0 0 12px rgba(79, 195, 247, 0.7);
+}
+.hp-bar .bar-fill {
+  background: linear-gradient(90deg, var(--hp-a), var(--hp-b));
+  box-shadow: 0 0 10px rgba(255, 77, 109, 0.55);
+}
+/* Brilho deslizante na barra de EVO */
+.evo-bar .bar-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: translateX(-100%);
+  animation: evo-shine 2.4s ease-in-out infinite;
+}
+@keyframes evo-shine { 0%, 60% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+
+.bar-text {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+  font-variant-numeric: tabular-nums;
+}
+
+.atk-box {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+.atk-icon { font-size: 16px; }
+.atk-value { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.atk-box.boosted { border-color: var(--gold); color: var(--gold); box-shadow: 0 0 14px rgba(255, 209, 102, 0.35); }
+
+/* ---------- Seletor de ataque ---------- */
+.weapon-select {
+  position: absolute;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: calc(max(14px, env(safe-area-inset-bottom)) + 96px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.weapon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  width: 132px;
+  border: 1px solid var(--panel-line);
+  border-radius: 12px;
+  background: var(--panel);
+  color: var(--text);
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  box-shadow: var(--shadow);
+  opacity: 0.6;
+  transition: opacity 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.weapon-btn:active { transform: scale(0.96); }
+.weapon-btn.active {
+  opacity: 1;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px rgba(255, 209, 102, 0.3), var(--shadow);
+}
+.weapon-icon { font-size: 17px; }
+.weapon-name { font-size: 12px; font-weight: 800; letter-spacing: 0.4px; }
+.weapon-key {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- Barras de vida 3D projetadas ---------- */
+.healthbar-layer, .damage-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.mob-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 76px;
+  margin-left: -38px;
+  text-align: center;
+  will-change: transform;
+}
+.mob-bar-name {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+  margin-bottom: 2px;
+  white-space: nowrap;
+}
+.mob-bar-track {
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+.mob-bar-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #6ee36e, #a8f0a8);
+}
+.mob-bar.hostile .mob-bar-fill { background: linear-gradient(90deg, #ff5252, #ff8a80); }
+.mob-bar.neutral .mob-bar-fill { background: linear-gradient(90deg, #ffb74d, #ffd699); }
+
+/* ---------- Números de dano flutuantes ---------- */
+.dmg-num {
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 17px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95);
+  will-change: transform, opacity;
+  white-space: nowrap;
+}
+.dmg-num.crit { font-size: 23px; color: var(--gold); }
+.dmg-num.heal { color: #7bed9f; }
+.dmg-num.player-hurt { color: var(--hp-b); }
+
+/* ---------- Controles mobile ---------- */
+.touch-layer { position: absolute; inset: 0; }
+.touch-layer[hidden] { display: none; }
+
+/* A zona do joystick cobre a metade esquerda inferior da tela: o toque pode
+   comecar em qualquer ponto dela e a base nasce sob o dedo.
+   Precisa de `pointer-events: auto` porque `.hud-layer` e' `none`. */
+.joystick.joystick-zone {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50vw;
+  height: 62vh;
+  pointer-events: auto;
+  touch-action: none;
+  background: transparent;
+}
+.joystick-base {
+  position: absolute;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+.joystick-knob {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  will-change: transform;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
+}
+
+.attack-btn {
+  position: absolute;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: calc(max(24px, env(safe-area-inset-bottom)) + 78px);
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: radial-gradient(circle at 35% 30%, #ff8a5c, #e63946);
+  color: #fff;
+  font-size: 34px;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(230, 57, 70, 0.45);
+  touch-action: none;
+  transition: transform 0.1s ease;
+}
+.attack-btn:active { transform: scale(0.9); }

@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#7ec850" />
+  <title>Power Animal Battle</title>
+  <link rel="stylesheet" href="./src/styles/hud.css" />
+  <link rel="stylesheet" href="./src/styles/overlays.css" />
+  <link rel="stylesheet" href="./src/styles/mobile.css" />
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- ============ HUD ============ -->
+  <div id="hud" class="hud-layer">
+
+    <!-- Topo esquerda: menu + placar -->
+    <div class="hud-topleft">
+      <button id="btn-menu" class="icon-btn" aria-label="Menu">&#9776;</button>
+      <div class="scoreboard">
+        <div class="score-item" title="EVO total">
+          <span class="score-icon">&#129504;</span>
+          <span id="score-evo">0</span>
+        </div>
+        <div class="score-item" title="Abates">
+          <span class="score-icon">&#128102;</span>
+          <span id="score-kills">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Painel lateral esquerdo: boosters de monetização -->
+    <div class="booster-panel" id="booster-panel">
+      <button class="booster-btn" id="booster-atk" data-booster="attack">
+        <span class="booster-ad">&#9654;&#65039;</span>
+        <span class="booster-body">
+          <span class="booster-title">&#9876;&#65039; ATTACK BOOSTER</span>
+          <span class="booster-sub">+20% DANO</span>
+        </span>
+        <span class="booster-timer" hidden>00:00</span>
+        <span class="booster-fill"></span>
+      </button>
+      <button class="booster-btn" id="booster-evo" data-booster="evo">
+        <span class="booster-ad">&#9654;&#65039;</span>
+        <span class="booster-body">
+          <span class="booster-title">&#129504; EVO MINING</span>
+          <span class="booster-sub">2x EVO</span>
+        </span>
+        <span class="booster-timer" hidden>00:00</span>
+        <span class="booster-fill"></span>
+      </button>
+    </div>
+
+    <!-- Barra inferior central: nível, EVO, HP, ATK -->
+    <div class="hud-bottom">
+      <div class="level-box">
+        <span class="level-label">LEVEL</span>
+        <span class="level-num" id="level-num">1</span>
+        <span class="level-species" id="level-species">Calango</span>
+      </div>
+
+      <div class="bars">
+        <div class="bar evo-bar">
+          <div class="bar-fill" id="evo-fill"></div>
+          <span class="bar-text" id="evo-text">0 / 100 EVO</span>
+        </div>
+        <div class="bar hp-bar">
+          <div class="bar-fill" id="hp-fill"></div>
+          <span class="bar-text" id="hp-text">100 / 100</span>
+        </div>
+      </div>
+
+      <div class="atk-box" id="atk-box">
+        <span class="atk-icon">&#9876;&#65039;</span>
+        <span class="atk-value" id="atk-value">10</span>
+      </div>
+    </div>
+
+    <!-- Seletor de ataque (desktop mostra atalhos, mobile é tocável) -->
+    <div class="weapon-select" id="weapon-select">
+      <button class="weapon-btn active" data-attack="laser">
+        <span class="weapon-icon">&#128165;</span>
+        <span class="weapon-name">LASER</span>
+        <span class="weapon-key">1</span>
+      </button>
+      <button class="weapon-btn" data-attack="flame">
+        <span class="weapon-icon">&#128293;</span>
+        <span class="weapon-name">CHAMAS</span>
+        <span class="weapon-key">2</span>
+      </button>
+    </div>
+
+    <!-- Controles mobile -->
+    <div class="touch-layer" id="touch-layer" hidden>
+      <div class="joystick" id="joystick">
+        <div class="joystick-base"></div>
+        <div class="joystick-knob" id="joystick-knob"></div>
+      </div>
+      <button class="attack-btn" id="attack-btn" aria-label="Atacar">&#9876;&#65039;</button>
+    </div>
+
+    <!-- Camada de barras de vida 3D projetadas -->
+    <div class="healthbar-layer" id="healthbar-layer"></div>
+
+    <!-- Camada de números de dano flutuantes -->
+    <div class="damage-layer" id="damage-layer"></div>
+  </div>
+
+  <!-- ============ OVERLAYS ============ -->
+  <div class="overlay" id="overlay-start">
+    <div class="panel">
+      <h1 class="game-title">POWER<span>ANIMAL</span>BATTLE</h1>
+      <p class="tagline">Cace, evolua, domine a selva.</p>
+      <button class="primary-btn" id="btn-play">JOGAR</button>
+      <div class="controls-hint">
+        <p class="desktop-only"><b>WASD</b> mover &middot; <b>Mouse</b> mirar &middot; <b>Espaço/Clique</b> atacar &middot; <b>1/2</b> trocar ataque</p>
+        <p class="mobile-only">Joystick para mover &middot; Botão para atacar</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="overlay-menu">
+    <div class="panel">
+      <h2>MENU</h2>
+      <button class="menu-row" id="btn-sound">Som: <b id="sound-state">ON</b></button>
+      <button class="menu-row" id="btn-quality">Qualidade: <b id="quality-state">ALTA</b></button>
+      <button class="primary-btn" id="btn-resume">CONTINUAR</button>
+      <button class="ghost-btn" id="btn-restart">REINICIAR</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="overlay-gameover">
+    <div class="panel">
+      <h2 class="gameover-title">VOCÊ FOI DERROTADO</h2>
+      <div class="gameover-stats">
+        <div><span id="go-level">1</span><small>NÍVEL</small></div>
+        <div><span id="go-evo">0</span><small>EVO</small></div>
+        <div><span id="go-kills">0</span><small>ABATES</small></div>
+      </div>
+      <button class="primary-btn" id="btn-retry">TENTAR NOVAMENTE</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden transition-overlay" id="overlay-biome">
+    <div class="biome-card">
+      <span class="biome-eyebrow">NOVO BIOMA</span>
+      <h2 id="biome-name">SAVANA</h2>
+      <p id="biome-desc">Predadores maiores. Recompensas maiores.</p>
+    </div>
+  </div>
+
+  <!-- Overlay do anúncio simulado (MockAdapter) -->
+  <div class="overlay hidden ad-overlay" id="overlay-ad">
+    <div class="ad-panel">
+      <span class="ad-label">ANÚNCIO</span>
+      <div class="ad-fake">
+        <div class="ad-spinner"></div>
+        <p id="ad-countdown">5</p>
+      </div>
+      <button class="ghost-btn" id="btn-skip-ad" hidden>PULAR</button>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

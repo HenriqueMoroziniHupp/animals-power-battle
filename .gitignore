@@ -1,0 +1,68 @@
+# Dependências (reinstaláveis via `npm install`)
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+
+# Build de produção (gerado por `npm run build`)
+dist/
+dist-ssr/
+*.local
+
+# Cache do Vite e de ferramentas
+.vite/
+node_modules/.vite/
+.cache/
+.temp/
+.eslintcache
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Variáveis de ambiente (podem conter chaves de SDK/anúncios)
+.env
+.env.*
+!.env.example
+
+# Editores e IDEs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*~
+
+# Sistema operacional
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Cobertura de testes
+coverage/
+*.lcov
+
+# Arquivos temporários deste projeto
+_check_*.mjs
+*.tmp
+
+# Pacotes de publicação nas plataformas (Poki / CrazyGames / YouTube Playables)
+*.zip
+build/
+
+# NOTA: `package-lock.json` NÃO é ignorado de propósito — ele deve ser
+# versionado para garantir que todos instalem exatamente as mesmas versões.
