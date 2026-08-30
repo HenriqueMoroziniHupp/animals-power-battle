@@ -225,3 +225,19 @@
   animation: spin 0.9s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Aviso de progresso retomado na tela inicial */
+.start-progress {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: 0.3px;
+}
+.start-progress[hidden] { display: none; }
+
+/* Ação destrutiva: apagar progresso */
+.danger-btn {
+  border-color: rgba(255, 107, 129, 0.45);
+  color: #ff8fa3;
+}
+.danger-btn:hover { background: rgba(255, 77, 109, 0.14); }

@@ -2,7 +2,7 @@
  * Controla as telas sobrepostas: início, menu, game over e transição de bioma.
  */
 export class Overlays {
-  constructor({ onPlay, onResume, onRestart, onToggleSound, onToggleQuality }) {
+  constructor({ onPlay, onResume, onRestart, onToggleSound, onToggleQuality, onResetProgress }) {
     this.el = {
       start: document.getElementById('overlay-start'),
       menu: document.getElementById('overlay-menu'),
@@ -24,6 +24,28 @@ export class Overlays {
     document.getElementById('btn-menu').addEventListener('click', () => this.showMenu())
     document.getElementById('btn-sound').addEventListener('click', onToggleSound)
     document.getElementById('btn-quality').addEventListener('click', onToggleQuality)
+
+    // Reiniciar progresso pede confirmacao: e' destrutivo e irreversivel.
+    const btnReset = document.getElementById('btn-reset-progress')
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        if (btnReset.dataset.confirming === '1') {
+          btnReset.dataset.confirming = '0'
+          btnReset.textContent = btnReset.dataset.label
+          onResetProgress?.()
+          return
+        }
+        btnReset.dataset.label = btnReset.textContent
+        btnReset.dataset.confirming = '1'
+        btnReset.textContent = 'TEM CERTEZA? TOQUE DE NOVO'
+        setTimeout(() => {
+          if (btnReset.dataset.confirming === '1') {
+            btnReset.dataset.confirming = '0'
+            btnReset.textContent = btnReset.dataset.label
+          }
+        }, 4000)
+      })
+    }
   }
 
   _hide(el) { el.classList.add('hidden') }
@@ -33,7 +55,15 @@ export class Overlays {
     for (const k of ['start', 'menu', 'gameover', 'biome']) this._hide(this.el[k])
   }
 
-  showStart() { this._show(this.el.start) }
+  /** @param {number} [level] nivel salvo, mostrado na tela inicial */
+  showStart(level = 1) {
+    const hint = document.getElementById('start-progress')
+    if (hint) {
+      hint.hidden = level <= 1
+      hint.textContent = `Continuando no n\u00edvel ${level}`
+    }
+    this._show(this.el.start)
+  }
   hideStart() { this._hide(this.el.start) }
   showMenu() { this._show(this.el.menu) }
   hideMenu() { this._hide(this.el.menu) }

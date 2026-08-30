@@ -28,6 +28,7 @@ import { Joystick } from '../ui/Joystick.js'
 import { TouchButtons } from '../ui/TouchButtons.js'
 import { BALANCE } from '../config/balance.js'
 import { applyAimAssist } from '../combat/attacks/aimAssist.js'
+import { SaveGame } from './SaveGame.js'
 
 /** Orquestrador: monta o mundo, roda o loop e conecta todos os sistemas. */
 export class Game {
@@ -49,6 +50,12 @@ export class Game {
       this.scene3d.scene, this.terrain, this.collision, this.biome, 4242,
     )
     this.player = new Player(this.scene3d.scene, this.terrain, this.collision)
+
+    // Progresso salvo: o jogador volta no nivel em que estava, mesmo depois
+    // de um F5 ou de fechar o navegador.
+    this.saves = new SaveGame()
+    const salvo = this.saves.load()
+    if (salvo.level > 1 || salvo.totalEvo > 0) this.player.reset(salvo)
 
     this.camera = new CameraController(this.scene3d.camera, this.terrain)
     this.camera.setSpeciesScale(this.player.species.scale)
@@ -107,6 +114,7 @@ export class Game {
       onRestart: () => this.restart(),
       onToggleSound: () => this.toggleSound(),
       onToggleQuality: () => this.toggleQuality(),
+      onResetProgress: () => this.resetProgress(),
     })
     this.overlays.setSoundState(!this.audio.muted)
     this.overlays.setQualityState(this.scene3d.quality)
@@ -144,14 +152,21 @@ export class Game {
     this._spawnTimer = 0
 
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && this.state.is(STATE.PLAYING)) this.pause()
+      if (document.hidden) {
+        // Salva ANTES de pausar: no mobile a aba pode ser descartada sem aviso.
+        this.saves.save(this.player)
+        if (this.state.is(STATE.PLAYING)) this.pause()
+      }
     })
+    // Rede de seguranca para F5 / fechar a aba.
+    window.addEventListener('pagehide', () => this.saves.save(this.player))
   }
 
   // ---------------- ciclo de vida ----------------
 
   start() {
-    this.overlays.showStart()
+    // Mostra na tela inicial em que nível o jogador está retomando.
+    this.overlays.showStart(this.player.level)
     this.hud.update(this.player, this.boosters.status())
     this._loop()
   }
@@ -201,6 +216,17 @@ export class Game {
 
   gameOver() {
     if (this.state.is(STATE.GAMEOVER)) return
+
+    // Penalidade da morte: perde 1 nivel (nunca abaixo de 1) e o EVO parcial.
+    // O resto do progresso e' preservado e salvo.
+    this._progressoAposMorte = {
+      level: Math.max(1, this.player.level - 1),
+      evo: 0,
+      totalEvo: this.player.totalEvo,
+      kills: this.player.kills,
+    }
+    this.saves.save(this._progressoAposMorte)
+
     this.state.set(STATE.GAMEOVER)
     this.input.setEnabled(false)
     this.currentAttack.stop()
@@ -217,7 +243,9 @@ export class Game {
     this.damageNumbers.clear()
     this.healthBars.clear()
     this.boosters.reset()
-    this.player.reset()
+    // Retoma o progresso (perdendo 1 nivel pela morte) em vez de zerar.
+    this.player.reset(this._progressoAposMorte ?? this.saves.load())
+    this._progressoAposMorte = null
     this.camera.setSpeciesScale(this.player.species.scale)
     this.camera.snap()
 
@@ -229,6 +257,29 @@ export class Game {
     this.input.setEnabled(true)
     this.audio.resume()
     AdManager.gameplayStart()
+  }
+
+  /** Apaga o progresso salvo e recomeca do nivel 1. */
+  resetProgress() {
+    this.saves.clear()
+    this._progressoAposMorte = null
+    this.overlays.hideAll()
+    this._clearMobs()
+    this.fire.clear()
+    this.scorch.clear()
+    this.damageNumbers.clear()
+    this.healthBars.clear()
+    this.boosters.reset()
+    this.player.reset()
+    this.camera.setSpeciesScale(this.player.species.scale)
+    this.camera.snap()
+
+    const first = biomeForLevel(1)
+    if (first.id !== this.biome.id) this._rebuildWorld(first)
+
+    this.state.set(STATE.PLAYING)
+    this.input.setEnabled(true)
+    this.audio.resume()
   }
 
   toggleSound() {
@@ -263,6 +314,7 @@ export class Game {
     }
     if (e.type === 'levelup') {
       this.audio.play('levelup')
+      this.saves.save(this.player)
       this.camera.setSpeciesScale(this.player.species.scale)
       if (isBiomeThreshold(e.level)) this._transitionBiome(e.level)
     }

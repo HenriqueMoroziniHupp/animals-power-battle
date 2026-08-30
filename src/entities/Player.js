@@ -210,19 +210,28 @@ export class Player extends Entity {
     this.collision.add(this)
   }
 
-  /** Reinicia para uma nova partida. */
-  reset() {
-    const first = speciesForLevel(1)
-    if (first.id !== this.species.id) this._changeSpecies(first)
+  /**
+   * Reinicia para uma nova partida, opcionalmente RETOMANDO um progresso.
+   *
+   * @param {{level?:number, evo?:number, totalEvo?:number, kills?:number}} [progresso]
+   *   Sem argumento, começa do zero. Com ele, o jogador volta no nível salvo —
+   *   é o que preserva o progresso ao morrer e ao recarregar a página.
+   */
+  reset(progresso = null) {
+    const level = Math.max(1, Math.floor(progresso?.level ?? 1))
+    const especie = speciesForLevel(level)
+    if (especie.id !== this.species.id) this._changeSpecies(especie)
 
-    this.level = 1
-    this.evo = 0
-    this.evoNeeded = BALANCE.evoForLevel(1)
-    this.totalEvo = 0
-    this.kills = 0
-    this.maxHp = BALANCE.maxHpAt(1, first.baseHp)
+    this.level = level
+    this.evoNeeded = BALANCE.evoForLevel(level)
+    // O EVO parcial nunca pode exceder o necessário para o nível.
+    this.evo = Math.min(Math.max(0, progresso?.evo ?? 0), this.evoNeeded)
+    this.totalEvo = Math.max(0, progresso?.totalEvo ?? 0)
+    this.kills = Math.max(0, Math.floor(progresso?.kills ?? 0))
+
+    this.maxHp = BALANCE.maxHpAt(level, especie.baseHp)
     this.hp = this.maxHp
-    this.atk = BALANCE.atkAt(1, first.baseAtk)
+    this.atk = BALANCE.atkAt(level, especie.baseAtk)
     this.dead = false
     this.invuln = 0
     this.timeSinceHurt = 99

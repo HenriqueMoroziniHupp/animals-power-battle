@@ -85,3 +85,23 @@ Biomas trocam nos níveis **10** (Savana) e **22** (Rochosas), com interstitial.
 | EVO Mining | 2x EVO | 120s | até 2 |
 
 Stacks multiplicam: 3 stacks de ataque = 1.2³ ≈ 1.73x.
+
+## Persistência de progresso
+
+O progresso é salvo em `localStorage` (`pab_save_v1`) e sobrevive à morte,
+ao F5 e a fechar o navegador — importante nas plataformas casuais, que
+recarregam o iframe com frequência.
+
+| Evento | O que acontece |
+|---|---|
+| Sobe de nível | Salva automaticamente |
+| **Morre** | **Perde 1 nível** (mínimo 1), zera o EVO parcial, mantém `totalEvo` e abates |
+| F5 / fecha aba | Salva em `visibilitychange` e `pagehide` |
+| Menu → APAGAR PROGRESSO | Zera tudo (exige **dois cliques** para confirmar) |
+
+A tela inicial mostra "Continuando no nível N" quando há progresso salvo.
+
+`SaveGame` é defensivo: `localStorage` pode lançar (modo privado, cookies
+bloqueados) e o save pode estar corrompido. Testados 8 casos (JSON inválido,
+nível negativo, nível absurdo, campos faltando, tipos errados) — todos caem em
+valores válidos sem lançar erro.
