@@ -98,8 +98,7 @@ html, body {
 .booster-panel {
   position: absolute;
   left: max(12px, env(safe-area-inset-left));
-  top: 50%;
-  transform: translateY(-50%);
+  top: calc(max(12px, env(safe-area-inset-top)) + 44px + 10px);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -132,9 +131,9 @@ html, body {
   display: grid;
   place-items: center;
   border-radius: 9px;
-  background: linear-gradient(135deg, #ff5f6d, #ff2d55);
-  font-size: 13px;
-  box-shadow: 0 2px 8px rgba(255, 45, 85, 0.4);
+  background: linear-gradient(135deg, #7ec850, #9fd356);
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(126, 200, 80, 0.4);
 }
 
 .booster-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -166,7 +165,7 @@ html, body {
 }
 .booster-btn.active .booster-ad {
   background: linear-gradient(135deg, #ffd166, #ffb703);
-  box-shadow: 0 2px 8px rgba(255, 183, 3, 0.45);
+  box-shadow: 0 2px 8px rgba(255, 209, 102, 0.45);
 }
 .booster-btn.pending { opacity: 0.55; pointer-events: none; }
 
@@ -272,7 +271,7 @@ html, body {
   position: absolute;
   right: max(12px, env(safe-area-inset-right));
   bottom: calc(max(14px, env(safe-area-inset-bottom)) + 96px);
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 8px;
 }

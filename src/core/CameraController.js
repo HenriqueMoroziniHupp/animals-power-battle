@@ -39,7 +39,7 @@ export class CameraController {
      * Velocidade do acompanhamento lateral, em rad/s por unidade de strafe.
      * Baixo de proposito: a tela "vira junto levemente", sem enjoar.
      */
-    this.alignRate = 0.9
+    this.alignRate = 3
     /** Só auto-alinha depois de N segundos sem input manual de câmera. */
     this.alignDelay = 0.35
     /** Yaw acumulado da câmera (o que de fato posiciona a câmera). */
@@ -81,7 +81,7 @@ export class CameraController {
       Math.abs(strafe) > 0.05
     if (canAlign) {
       // Velocidade proporcional ao quanto o jogador pede de lateral.
-      this.yaw += strafe * this.alignRate * dt
+      this.yaw -= strafe * this.alignRate * dt
     }
     const yaw = this.yaw
 

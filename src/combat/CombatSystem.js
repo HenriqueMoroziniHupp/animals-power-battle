@@ -129,16 +129,19 @@ export class CombatSystem {
       this.damageNumbers?.spawn(TMP, `+${prop.healValue} HP`, 'heal')
     }
 
-    // Vira toco queimado ou some.
+    // Vira toco queimado ou fica invisível.
     const becameBurnt = byFire && prop.toBurnt()
     if (becameBurnt) {
       // Toco continua bloqueando, mas não é mais alvo.
+      // Será restaurado após o delay.
       prop.solid = true
       prop.flammable = false
     } else {
-      prop.dispose()
+      // Sem fogo: fica invisível mas será restaurado
+      prop.mesh.visible = false
+      prop.solid = false
     }
-    this.world?.removeProp(prop)
+    // Nenhum prop é removido - todos renascem após o delay
     this._emit('propDestroyed', { prop, byFire })
   }
 }

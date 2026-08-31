@@ -39,14 +39,31 @@ export class FlameAttack {
     this.group.visible = false
     this.scene.add(this.group)
 
-    const geo = new THREE.IcosahedronGeometry(0.34, 0)
+    // Partículas densas para parecer fogo de verdade, não bolas - MAIOR!
+    const geo = new THREE.TetrahedronGeometry(0.25)
     this.particles = []
-    // .clone(): additiveMat() devolve material COMPARTILHADO por cor. Como
-    // animamos opacity/color por particula (e agora tambem por nivel de
-    // booster), cada uma precisa do proprio material. Clonado 1x aqui.
-    for (let i = 0; i < 22; i++) {
-      const m = new THREE.Mesh(geo, additiveMat(i % 3 === 0 ? 0xffdd55 : 0xff5522, 0.9).clone())
+    // MUITAS partículas para densidade visual alta
+    for (let i = 0; i < 200; i++) {
+      let color
+      const ratio = i / 200
+      if (ratio < 0.1) {
+        color = 0xffffff // Branco
+      } else if (ratio < 0.25) {
+        color = 0xffffaa // Amarelo claro
+      } else if (ratio < 0.4) {
+        color = 0xffff00 // Amarelo puro
+      } else if (ratio < 0.55) {
+        color = 0xffaa00 // Laranja
+      } else if (ratio < 0.7) {
+        color = 0xff6600 // Laranja queimado
+      } else if (ratio < 0.85) {
+        color = 0xff2200 // Vermelho
+      } else {
+        color = 0xaa0000 // Vermelho escuro
+      }
+      const m = new THREE.Mesh(geo, additiveMat(color, 1.0).clone())
       m.userData.seed = Math.random()
+      m.userData.index = i
       this.group.add(m)
       this.particles.push(m)
     }
@@ -142,20 +159,45 @@ export class FlameAttack {
     for (let i = 0; i < this.particles.length; i++) {
       const m = this.particles[i]
       const seed = m.userData.seed
-      // Progresso cíclico ao longo do jato.
-      const k = ((this._t * 1.9 + seed) % 1)
+      const idx = m.userData.index
+
+      // Progresso ao longo do jato (começa na origem, vai até range)
+      const k = ((this._t * 3.5 + seed * 0.15) % 1)
       const dist = k * range
       const w = spread * dist
 
+      // Ângulo ao redor do cone
+      const angle = (seed * 12.5) % (Math.PI * 2)
+
+      // Raio dentro do cone (mais apertado perto da origem, mais aberto na ponta)
+      const coneRadius = w * (0.4 + Math.sin(seed * 7) * 0.2)
+
+      // Posição base no cone cônico
+      let baseX = Math.cos(angle) * coneRadius
+      let baseZ = Math.sin(angle) * coneRadius
+
+      // Fluxo do fogo: sobe enquanto avança
+      const upwardFlow = dist * 0.15
+
+      // Turbulência suave e contínua (não exagerada)
+      const turbX = Math.sin(this._t * 8 + seed * 15 + idx * 0.3) * w * 0.3
+      const turbZ = Math.cos(this._t * 7.5 + seed * 11 + idx * 0.25) * w * 0.3
+
       m.position.set(
-        DIR.x * dist + (Math.sin(seed * 31 + this._t * 7) * w * 0.55),
-        0.15 + Math.sin(seed * 17 + this._t * 5) * w * 0.4,
-        DIR.z * dist + (Math.cos(seed * 23 + this._t * 6) * w * 0.55),
+        DIR.x * dist + baseX + turbX,
+        0.15 + upwardFlow,
+        DIR.z * dist + baseZ + turbZ,
       )
-      // Chama mais "gorda" e mais opaca quando turbinada.
-      const s = (0.35 + k * 1.15) * (1 + boost * 0.45)
-      m.scale.setScalar(s)
-      m.material.opacity = Math.max(0, Math.min(1, (0.95 + boost * 0.25) - k * 1.05))
+
+      // Tamanho maior e visível
+      const sizeVar = Math.sin(this._t * 10 + idx * 0.5) * 0.3
+      const s = (0.6 + sizeVar) * (1 + boost * 0.4)
+      m.scale.setScalar(Math.max(0.4, s))
+
+      // Opacidade: transparente no início e fim, opaco no meio
+      const opacityProfile = Math.sin(k * Math.PI) // 0 -> 1 -> 0
+      const opacity = opacityProfile * (0.95 + boost * 0.05)
+      m.material.opacity = opacity
     }
 
     // NAO zerar `active` aqui: isso apagava o jato por um frame entre o

@@ -111,6 +111,11 @@ export class WorldBuilder {
 
   update(dt) {
     this.water.update(dt)
+
+    // Atualiza restauração das árvores
+    for (const prop of this.props) {
+      if (prop.update) prop.update(dt)
+    }
   }
 
   dispose() {
