@@ -4,10 +4,10 @@
   --hp-a: #ff4d6d;
   --hp-b: #ff8fa3;
   --gold: #ffd166;
-  --panel: rgba(16, 22, 30, 0.72);
-  --panel-line: rgba(255, 255, 255, 0.16);
+  --panel: rgba(45, 55, 75, 0.45);
+  --panel-line: rgba(255, 255, 255, 0.2);
   --text: #f4f7fb;
-  --shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  --shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
   --radius: 14px;
   --hud-font: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }

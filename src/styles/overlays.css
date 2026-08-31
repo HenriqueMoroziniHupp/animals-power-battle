@@ -7,7 +7,7 @@
   display: grid;
   place-items: center;
   padding: 20px;
-  background: radial-gradient(ellipse at center, rgba(8, 14, 20, 0.72), rgba(4, 8, 12, 0.93));
+  background: radial-gradient(ellipse at center, rgba(20, 30, 45, 0.55), rgba(15, 22, 32, 0.72));
   backdrop-filter: blur(5px);
   animation: overlay-in 0.22s ease-out;
 }
@@ -19,9 +19,9 @@
   width: min(440px, 100%);
   padding: 28px 26px;
   border-radius: 20px;
-  background: linear-gradient(160deg, rgba(24, 32, 42, 0.96), rgba(14, 20, 28, 0.96));
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(160deg, rgba(50, 70, 100, 0.55), rgba(35, 50, 75, 0.55));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
   text-align: center;
   display: flex;
   flex-direction: column;
