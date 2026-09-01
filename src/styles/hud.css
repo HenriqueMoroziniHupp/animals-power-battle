@@ -10,6 +10,10 @@
   --shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
   --radius: 14px;
   --hud-font: 'Trebuchet MS', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  /* Altura única dos itens do topo esquerdo (menu, placar e boosters) */
+  --hud-top-h: 44px;
+  /* Espaço entre o ícone e o texto dos boosters */
+  --booster-gap: 4px;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -59,8 +63,8 @@ html, body {
 }
 
 .icon-btn {
-  width: 44px;
-  height: 44px;
+  width: var(--hud-top-h);
+  height: var(--hud-top-h);
   border: 1px solid var(--panel-line);
   border-radius: 12px;
   background: var(--panel);
@@ -82,7 +86,8 @@ html, body {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 8px 12px;
+  height: var(--hud-top-h);
+  padding: 0 12px;
   background: var(--panel);
   border: 1px solid var(--panel-line);
   border-radius: 12px;
@@ -110,7 +115,7 @@ html, body {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--booster-gap);
   /* width: 210px; */
   padding: 10px 12px;
   border: 1px solid var(--panel-line);
@@ -138,9 +143,10 @@ html, body {
   box-shadow: 0 2px 8px rgba(126, 200, 80, 0.4);
 }
 
-.booster-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.booster-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; justify-content: center; }
 .booster-title { font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px; white-space: nowrap; }
 .booster-sub { font-size: 11px; opacity: 0.78; font-weight: 700; white-space: nowrap; }
+.booster-title-short { display: none; font-size: 12px; font-weight: 800; letter-spacing: 0.2px; white-space: nowrap; }
 
 .booster-timer {
   margin-left: auto;

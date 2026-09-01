@@ -9,15 +9,63 @@ body.is-touch .mobile-only { display: block; }
 body.is-touch .desktop-only { display: none; }
 body.is-touch .weapon-key { display: none; }
 
-/* No toque, os boosters entram no fluxo do topo: empilhados ao lado do placar */
-body.is-touch .booster-panel { position: static; }
-body.is-touch .hud-topleft { align-items: flex-start; }
+/* No mobile (toque OU tela estreita), os boosters entram no fluxo do topo,
+   em linha ao lado do placar, com texto abreviado numa linha só */
+body.is-touch .booster-panel { position: static; flex-direction: row; }
+body.is-touch .hud-topleft { align-items: flex-start; flex-wrap: wrap; row-gap: 8px; }
+body.is-touch .booster-btn {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  align-content: center;
+  justify-content: start;
+  column-gap: var(--booster-gap);
+  row-gap: 0;
+  height: var(--hud-top-h);
+  padding-block: 0;
+}
+body.is-touch .booster-title,
+body.is-touch .booster-sub { display: none; }
+body.is-touch .booster-title-short { display: block; }
+body.is-touch .booster-ad { grid-row: 1 / 3; }
+body.is-touch .booster-timer { grid-column: 2; grid-row: 2; margin-left: 0; line-height: 1.1; }
+/* Sem timer visível o botão vira uma linha só: o título fica centralizado
+   com o ícone em vez de ficar preso à linha de cima da grade. */
+body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) {
+  grid-template-rows: auto;
+}
+body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
+  grid-row: 1;
+}
+@media (max-width: 860px) {
+  .booster-panel { position: static; flex-direction: row; }
+  .hud-topleft { align-items: flex-start; flex-wrap: wrap; row-gap: 8px; }
+  .booster-btn {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    align-content: center;
+    justify-content: start;
+    column-gap: var(--booster-gap);
+    row-gap: 0;
+    height: var(--hud-top-h);
+    padding-block: 0;
+  }
+  .booster-title,
+  .booster-sub { display: none; }
+  .booster-title-short { display: block; }
+  .booster-ad { grid-row: 1 / 3; }
+  .booster-timer { grid-column: 2; grid-row: 2; margin-left: 0; line-height: 1.1; }
+  .booster-btn:not(:has(.booster-timer:not([hidden]))) { grid-template-rows: auto; }
+  .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad { grid-row: 1; }
+}
 
 /* Telas médias: encolhe a barra inferior e os boosters */
 @media (max-width: 860px) {
-  .booster-btn { padding: 9px 10px; }
-  .booster-title { font-size: 11.5px; }
-  .booster-sub { font-size: 10px; }
+  .booster-btn { padding: 0 10px; }
+  .booster-title-short { font-size: 11px; }
   .hud-bottom { gap: 8px; padding: 9px 10px; }
   .level-box { min-width: 92px; padding: 5px 9px; }
   .level-num { font-size: 18px; }
@@ -42,14 +90,13 @@ body.is-touch .hud-topleft { align-items: flex-start; }
   .atk-value { font-size: 15px; }
   .atk-icon { font-size: 13px; }
 
-  .score-item { padding: 6px 9px; font-size: 13px; }
-  .icon-btn { width: 40px; height: 40px; font-size: 19px; }
+  .score-item { padding: 0 9px; font-size: 13px; }
+  .icon-btn { font-size: 19px; }
 
   /* Boosters encolhem mas mantêm o texto do bônus visível */
-  .booster-btn { width: auto; padding: 7px 9px; gap: 7px; }
+  .booster-btn { width: auto; padding: 0 9px; }
   .booster-ad { width: 24px; height: 24px; font-size: 13px; }
-  .booster-title { font-size: 10px; }
-  .booster-sub { font-size: 9.5px; }
+  .booster-title-short { font-size: 10px; }
   .booster-timer { font-size: 11px; }
 
   /* Seletor de ataque compacto acima do botão de ataque */
@@ -72,10 +119,11 @@ body.is-touch .hud-topleft { align-items: flex-start; }
 
 /* Paisagem em celular: altura curta, tudo encolhe e sai do centro */
 @media (max-height: 480px) and (orientation: landscape) {
-  .booster-btn { width: auto; padding: 6px 9px; gap: 7px; }
+  /* Altura da linha do topo encolhe junto com os ícones */
+  :root { --hud-top-h: 36px; }
+  .booster-btn { width: auto; padding: 0 9px; }
   .booster-ad { width: 22px; height: 22px; font-size: 12px; }
-  .booster-title { font-size: 9.5px; }
-  .booster-sub { font-size: 9px; }
+  .booster-title-short { font-size: 9.5px; }
   .booster-timer { font-size: 10.5px; }
 
   .hud-bottom {
