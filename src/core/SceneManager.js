@@ -24,8 +24,9 @@ export class SceneManager {
 
     this.scene = new THREE.Scene()
 
+    this.baseFov = 55
     this.camera = new THREE.PerspectiveCamera(
-      55,
+      this.baseFov,
       window.innerWidth / window.innerHeight,
       0.5,
       400,
@@ -114,6 +115,12 @@ export class SceneManager {
       this._lastShadowFocus = { x: focusPos.x, z: focusPos.z }
       this.renderer.shadowMap.needsUpdate = true
     }
+  }
+
+  /** Campo de visão (graus): usado pelo slider de zoom no mobile. */
+  setFov(fov) {
+    this.camera.fov = fov
+    this.camera.updateProjectionMatrix()
   }
 
   resize() {

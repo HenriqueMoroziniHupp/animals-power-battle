@@ -26,6 +26,7 @@ import { BoosterPanel } from '../ui/BoosterPanel.js'
 import { Overlays } from '../ui/Overlays.js'
 import { Joystick } from '../ui/Joystick.js'
 import { TouchButtons } from '../ui/TouchButtons.js'
+import { ZoomSlider } from '../ui/ZoomSlider.js'
 import { BALANCE } from '../config/balance.js'
 import { applyAimAssist } from '../combat/attacks/aimAssist.js'
 import { SaveGame } from './SaveGame.js'
@@ -134,6 +135,11 @@ export class Game {
         this.input,
       )
     }
+    // O zoom (campo de visão) fica sempre visível, em qualquer dispositivo.
+    this.zoomSlider = new ZoomSlider(
+      document.getElementById('zoom-range'),
+      (fov) => this.scene3d.setFov(fov),
+    )
     this.touchButtons = new TouchButtons(
       document.getElementById('attack-btn'), this.input,
       (id) => this.setAttack(id),
