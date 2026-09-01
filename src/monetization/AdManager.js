@@ -1,3 +1,4 @@
+import { ADS_ENABLED } from '../config/ads.js'
 import { MockAdapter } from './adapters/MockAdapter.js'
 import { PokiAdapter } from './adapters/PokiAdapter.js'
 import { CrazyGamesAdapter } from './adapters/CrazyGamesAdapter.js'
@@ -50,6 +51,11 @@ class AdManagerImpl {
    * @param {() => void} [onRewardFail]
    */
   async showRewardedAd(onRewardSuccess, onRewardFail) {
+    // Anúncios desligados: concede a recompensa sem exibir o modal.
+    if (!ADS_ENABLED) {
+      onRewardSuccess?.()
+      return
+    }
     if (this._showing) return
     this._showing = true
     this.onPause?.()
@@ -72,6 +78,10 @@ class AdManagerImpl {
    * @param {() => void} [onComplete]
    */
   async showInterstitialAd(onComplete) {
+    if (!ADS_ENABLED) {
+      onComplete?.()
+      return
+    }
     const now = performance.now() / 1000
     if (this._showing || now - this._lastInterstitial < this.interstitialCooldown) {
       onComplete?.()
