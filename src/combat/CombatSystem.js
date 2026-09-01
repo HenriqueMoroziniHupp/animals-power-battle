@@ -78,7 +78,7 @@ export class CombatSystem {
   /** Mob acertou o player. */
   mobAttackPlayer(mob, player) {
     if (player.dead) return
-    const dmg = mob.atk
+    const dmg = BALANCE.mobAtkAt(mob.atk, player.level)
     const died = player.takeDamage(dmg, mob)
 
     TMP.set(player.position.x, player.position.y + 2, player.position.z)

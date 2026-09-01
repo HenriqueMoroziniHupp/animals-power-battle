@@ -19,6 +19,18 @@ export const BALANCE = {
     return Math.round(baseAtk + (level - 1) * baseAtk * 0.22)
   },
 
+  /**
+   * Dano de um mob contra o player, escalado pelo nível do player.
+   *
+   * O HP do player cresce ~16%/nível (mais os saltos de evolução), mas o
+   * `atk` de cada mob é uma constante fixa no arquivo da espécie — sem essa
+   * escala o dano relativo de um mob despenca conforme o player sobe de
+   * nível dentro do mesmo bioma, e o jogo fica cada vez mais fácil.
+   */
+  mobAtkAt(mobBaseAtk, playerLevel) {
+    return Math.round(mobBaseAtk * (1 + (playerLevel - 1) * 0.14))
+  },
+
   /** Chance de acerto crítico e seu multiplicador. */
   critChance: 0.15,
   critMultiplier: 1.5,
