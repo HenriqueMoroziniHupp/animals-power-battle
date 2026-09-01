@@ -169,12 +169,23 @@ export const ATTACKS = {
 }
 
 /**
- * Laser duplo (Super Calango): mesmos números do laser comum — a cadência
- * TOTAL continua 10 tiros/s, só alternando o lado do corpo a cada disparo,
- * então o DPS não muda e o balance fica intacto.
+ * Laser duplo (Super Calango): cadência que ACELERA enquanto o gatilho é
+ * segurado, começando morna e terminando devastadora — um "spin-up" de
+ * metralhadora giratória, não um tiro constante.
  */
 ATTACKS.doubleLaser = {
   ...ATTACKS.laser,
   id: 'doubleLaser',
   name: 'Laser Duplo',
+  // O `cooldown` herdado do laser comum não é usado: DoubleLaserAttack
+  // calcula um cooldown dinâmico a cada tiro a partir de `rampUp`.
+  // Rampa de cadência: começa em `startRate` tiros/s e sobe `ratePerSecond`
+  // por segundo de gatilho seguro, até o teto `maxRate` (cooldown 0.06s).
+  rampUp: {
+    startRate: 8,
+    maxRate: 1 / 0.06, // ~16.7 tiros/s — o mesmo teto já validado
+    ratePerSecond: 1,
+  },
+  // Cor do feixe no teto da rampa: vira vermelho/laranja, como fogo.
+  maxColor: { core: 0xff5a1f, glow: 0xff9c33 },
 }

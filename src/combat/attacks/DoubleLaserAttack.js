@@ -7,17 +7,27 @@ const DIR = new THREE.Vector3()
 const ORIGIN = new THREE.Vector3()
 const MID = new THREE.Vector3()
 
+const COLOR_CORE_BASE = new THREE.Color(0x66e0ff)
+const COLOR_GLOW_BASE = new THREE.Color(0x2288ff)
+const _tmpColor = new THREE.Color()
+
 /**
  * Laser duplo (Super Calango): cadência intercalada de dois lasers, um de
  * cada lado do corpo. Variante isolada do LaserAttack — mesmo contrato,
- * mesmos números de dano/cadência (o cooldown limita o TOTAL a 10 tiros/s,
- * só alternando o lado), reutilizável por qualquer espécie com `dualLasers`.
+ * reutilizável por qualquer espécie com `dualLasers`.
+ *
+ * A cadência ACELERA enquanto o gatilho é segurado: começa em `rampUp.
+ * startRate` tiros/s e sobe `ratePerSecond` por segundo até `maxRate`
+ * (spin-up de metralhadora giratória). Ao atingir o teto, o feixe muda de
+ * azul para vermelho/laranja (`cfg.maxColor`) — sinal visual claro de poder
+ * máximo. `stop()` reseta a rampa: soltar e segurar de novo começa devagar.
  *
  * Dois pares de feixe (core+glow), um por lado, cada um com vida própria:
- * feixes consecutivos se sobrepõem ~0.05s (vida 0.15s vs cooldown 0.1s) e
- * com um único par o feixe "teleportaria" de lado a 10Hz. Os materiais são
- * CLONES: o fade muta a opacity, e mutar o material aditivo do cache
- * apagaria o feixe do LaserAttack original e os FX da mesma cor.
+ * no teto de cadência (cooldown 0.06s) cada lado dispara a cada 0.12s, e o
+ * feixe vive 0.15s — com um único par o feixe "teleportaria" de lado. Os
+ * materiais são CLONES: o fade muta a opacity e a cor da rampa muta o
+ * `.color`, e mutar o material aditivo do cache apagaria o feixe do
+ * LaserAttack original e os FX da mesma cor.
  */
 export class DoubleLaserAttack {
   constructor(ctx) {
@@ -25,6 +35,10 @@ export class DoubleLaserAttack {
     this.id = this.cfg.id
     this.name = this.cfg.name
     this.cooldown = 0
+    /** Segundos de gatilho seguro nesta rajada (rampa de cadência). */
+    this._holdTime = 0
+    /** true enquanto `fire()` está sendo chamado a cada frame (gatilho seguro). */
+    this._firing = false
 
     this.scene = ctx.scene
     this.collision = ctx.collision
@@ -61,16 +75,32 @@ export class DoubleLaserAttack {
 
   get ready() { return this.cooldown <= 0 }
 
-  /** Contínuo: segurar o botão mantém atirando (mesma cadência do laser). */
+  /** Contínuo: segurar o botão mantém atirando (a cadência acelera com a rampa). */
   get continuous() { return true }
+
+  /** Taxa atual de tiros/s, dado o tempo de gatilho seguro (rampa linear). */
+  _currentRate() {
+    const r = this.cfg.rampUp
+    return Math.min(r.maxRate, r.startRate + this._holdTime * r.ratePerSecond)
+  }
+
+  /** 0 no início da rampa, 1 no teto — usado para o fade azul → vermelho. */
+  _rampT() {
+    const r = this.cfg.rampUp
+    const span = r.maxRate - r.startRate
+    if (span <= 0) return 1
+    return Math.min(1, (this._currentRate() - r.startRate) / span)
+  }
 
   /**
    * @param {object} player
    * @param {THREE.Camera} camera usada para limitar o alcance ao visível
    */
   fire(player, camera) {
+    this._firing = true
     if (!this.ready) return false
-    this.cooldown = this.cfg.cooldown
+    // Cooldown dinâmico: quanto mais tempo de gatilho, mais rápido o tiro.
+    this.cooldown = 1 / this._currentRate()
 
     this._side = -this._side
     player.getMuzzle(ORIGIN, this._side)
@@ -120,18 +150,29 @@ export class DoubleLaserAttack {
     const dist = from.distanceTo(to)
     MID.copy(from).add(to).multiplyScalar(0.5)
 
+    // Cor desliza de azul (início da rampa) para vermelho/laranja (teto de
+    // cadência) — o mesmo lerp de cor do core e do glow.
+    const t = this._rampT()
+    const maxColor = this.cfg.maxColor
     for (const m of [pair.core, pair.glow]) {
       m.position.copy(MID)
       m.lookAt(to)
       m.scale.set(1, 1, Math.max(0.01, dist))
       m.visible = true
       m.material.opacity = m === pair.core ? 1 : 0.4
+      const base = m === pair.core ? COLOR_CORE_BASE : COLOR_GLOW_BASE
+      const target = m === pair.core ? maxColor.core : maxColor.glow
+      m.material.color.copy(base).lerp(_tmpColor.set(target), t)
     }
     pair.life = 0.15
   }
 
   update(dt) {
     if (this.cooldown > 0) this.cooldown -= dt
+    // A rampa só avança enquanto o gatilho está de fato sendo segurado
+    // (fire() chamado neste frame); `stop()` já zera tudo ao soltar.
+    if (this._firing) this._holdTime += dt
+    this._firing = false
     for (const pair of this._pairs) {
       if (pair.life <= 0) continue
       pair.life -= dt
@@ -145,5 +186,9 @@ export class DoubleLaserAttack {
     }
   }
 
-  stop() {}
+  /** Solta o gatilho: a próxima rajada volta a começar devagar. */
+  stop() {
+    this._holdTime = 0
+    this._firing = false
+  }
 }
