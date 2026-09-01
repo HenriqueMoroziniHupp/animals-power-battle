@@ -27,6 +27,7 @@ import { Overlays } from '../ui/Overlays.js'
 import { Joystick } from '../ui/Joystick.js'
 import { TouchButtons } from '../ui/TouchButtons.js'
 import { ZoomSlider } from '../ui/ZoomSlider.js'
+import { FullscreenBtn } from '../ui/FullscreenBtn.js'
 import { BALANCE } from '../config/balance.js'
 import { applyAimAssist } from '../combat/attacks/aimAssist.js'
 import { SaveGame } from './SaveGame.js'
@@ -144,6 +145,7 @@ export class Game {
       document.getElementById('attack-btn'), this.input,
       (id) => this.setAttack(id),
     )
+    this.fullscreenBtn = new FullscreenBtn()
 
     // --- eventos ---
     this.player.on((e) => this._onPlayerEvent(e))

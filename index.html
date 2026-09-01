@@ -16,7 +16,7 @@
   <div id="hud" class="hud-layer">
 
     <!-- Topo esquerda: menu + placar + boosters numa única linha;
-         zoom sempre numa linha própria logo abaixo. -->
+         zoom + fullscreen numa segunda linha. -->
     <div class="hud-topleft">
       <div class="hud-topleft-row">
         <button id="btn-menu" class="icon-btn" aria-label="Menu">&#9776;</button>
@@ -56,16 +56,18 @@
         </div>
       </div>
 
-      <!-- Zoom (campo de visão): sempre visível, numa linha própria logo
-           abaixo do menu/placar/boosters. -->
-      <div class="zoom-slider" id="zoom-slider">
-        <span class="zoom-icon" aria-hidden="true">&#128269;&#43;</span>
-        <input
-          type="range" id="zoom-range" class="zoom-range"
-          min="45" max="85" step="1" value="55"
-          aria-label="Campo de visão"
-        />
-        <span class="zoom-icon" aria-hidden="true">&#128269;&#8722;</span>
+      <!-- Zoom (campo de visão) + Fullscreen: segunda linha, ao lado. -->
+      <div class="hud-topleft-row">
+        <div class="zoom-slider" id="zoom-slider">
+          <span class="zoom-icon" aria-hidden="true">&#128269;&#43;</span>
+          <input
+            type="range" id="zoom-range" class="zoom-range"
+            min="45" max="85" step="1" value="55"
+            aria-label="Campo de visão"
+          />
+          <span class="zoom-icon" aria-hidden="true">&#128269;&#8722;</span>
+        </div>
+        <button id="fullscreen-btn" class="icon-btn mobile-only" aria-label="Tela cheia">⛶</button>
       </div>
     </div>
 

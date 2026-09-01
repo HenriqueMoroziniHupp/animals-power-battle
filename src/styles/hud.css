@@ -454,7 +454,6 @@ html, body {
    Bem discreto (cinza-claro translúcido) para não tampar a visão do jogo. */
 .zoom-slider {
   height: var(--hud-top-h);
-  width: 148px;
   display: flex;
   align-items: center;
   gap: 8px;
