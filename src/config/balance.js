@@ -54,7 +54,7 @@ export const BALANCE = {
 
   /** Boosters de monetização. */
   boosters: {
-    attack: { duration: 120, multiplier: 1.2, maxStacks: 3 },
+    attack: { duration: 120, multiplier: 1.5, maxStacks: 3 },
     evo: { duration: 120, multiplier: 2, maxStacks: 2 },
   },
 
