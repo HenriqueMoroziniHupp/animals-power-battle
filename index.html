@@ -15,44 +15,57 @@
   <!-- ============ HUD ============ -->
   <div id="hud" class="hud-layer">
 
-    <!-- Topo esquerda: menu + placar -->
+    <!-- Topo esquerda: menu + placar + boosters numa única linha;
+         zoom sempre numa linha própria logo abaixo. -->
     <div class="hud-topleft">
-      <button id="btn-menu" class="icon-btn" aria-label="Menu">&#9776;</button>
-      <div class="scoreboard">
-        <div class="score-item" title="EVO total">
-          <span class="score-icon">&#129504;</span>
-          <span id="score-evo">0</span>
+      <div class="hud-topleft-row">
+        <button id="btn-menu" class="icon-btn" aria-label="Menu">&#9776;</button>
+        <div class="scoreboard">
+          <div class="score-item" title="EVO total">
+            <span class="score-icon">&#129504;</span>
+            <span id="score-evo">0</span>
+          </div>
+          <div class="score-item" title="Abates">
+            <span class="score-icon">&#128128;</span>
+            <span id="score-kills">0</span>
+          </div>
         </div>
-        <div class="score-item" title="Abates">
-          <span class="score-icon">&#128128;</span>
-          <span id="score-kills">0</span>
+
+        <!-- Boosters de monetização: sempre na mesma linha do menu/placar. -->
+        <div class="booster-panel" id="booster-panel">
+          <button class="booster-btn" id="booster-atk" data-booster="attack">
+            <span class="booster-ad">⚔️</span>
+            <span class="booster-body">
+              <span class="booster-title">⚔️ ATTACK BOOSTER</span>
+              <span class="booster-sub">+50% DANO</span>
+              <span class="booster-title-short">Atk +50%</span>
+            </span>
+            <span class="booster-timer" hidden>00:00</span>
+            <span class="booster-fill"></span>
+          </button>
+          <button class="booster-btn" id="booster-evo" data-booster="evo">
+            <span class="booster-ad">⭐</span>
+            <span class="booster-body">
+              <span class="booster-title">⭐ EVO MINING</span>
+              <span class="booster-sub">2x EVO</span>
+              <span class="booster-title-short">Evo x2</span>
+            </span>
+            <span class="booster-timer" hidden>00:00</span>
+            <span class="booster-fill"></span>
+          </button>
         </div>
       </div>
 
-      <!-- Boosters de monetização: no desktop ficam abaixo do placar
-           (posicionamento absoluto); no toque entram no fluxo, empilhados
-           ao lado do placar. -->
-      <div class="booster-panel" id="booster-panel">
-        <button class="booster-btn" id="booster-atk" data-booster="attack">
-          <span class="booster-ad">⚔️</span>
-          <span class="booster-body">
-            <span class="booster-title">⚔️ ATTACK BOOSTER</span>
-            <span class="booster-sub">+50% DANO</span>
-            <span class="booster-title-short">Atk +50%</span>
-          </span>
-          <span class="booster-timer" hidden>00:00</span>
-          <span class="booster-fill"></span>
-        </button>
-        <button class="booster-btn" id="booster-evo" data-booster="evo">
-          <span class="booster-ad">⭐</span>
-          <span class="booster-body">
-            <span class="booster-title">⭐ EVO MINING</span>
-            <span class="booster-sub">2x EVO</span>
-            <span class="booster-title-short">Evo x2</span>
-          </span>
-          <span class="booster-timer" hidden>00:00</span>
-          <span class="booster-fill"></span>
-        </button>
+      <!-- Zoom (campo de visão): sempre visível, numa linha própria logo
+           abaixo do menu/placar/boosters. -->
+      <div class="zoom-slider" id="zoom-slider">
+        <span class="zoom-icon" aria-hidden="true">&#128269;&#43;</span>
+        <input
+          type="range" id="zoom-range" class="zoom-range"
+          min="45" max="85" step="1" value="55"
+          aria-label="Campo de visão"
+        />
+        <span class="zoom-icon" aria-hidden="true">&#128269;&#8722;</span>
       </div>
     </div>
 

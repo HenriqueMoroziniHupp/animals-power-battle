@@ -53,10 +53,18 @@ html, body {
 .hud-layer.hidden { display: none; }
 
 /* ---------- Topo esquerda ---------- */
+/* Coluna: [menu+placar] em cima, depois o zoom, depois os boosters — cada
+   um numa linha própria, sempre nessa ordem, em qualquer dispositivo. */
 .hud-topleft {
   position: absolute;
   top: max(12px, env(safe-area-inset-top));
   left: max(12px, env(safe-area-inset-left));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+.hud-topleft-row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -100,14 +108,10 @@ html, body {
 .score-icon { font-size: 15px; }
 
 /* ---------- Boosters ---------- */
-/* Filho de .hud-topleft: no desktop sai do fluxo e fica logo abaixo do
-   placar; no toque vira estático e empilha ao lado dele (ver mobile.css). */
+/* Filho de .hud-topleft-row: sempre na mesma linha do menu/placar. */
 .booster-panel {
-  position: absolute;
-  left: 0;
-  top: calc(100% + 10px);
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 10px;
 }
 
@@ -443,3 +447,57 @@ html, body {
   transition: transform 0.1s ease;
 }
 .attack-btn:active { transform: scale(0.9); }
+
+/* Slider horizontal de zoom (campo de visão). Filho de .hud-topleft (coluna),
+   por isso cai sozinho numa linha própria logo abaixo do menu/placar — nunca
+   ao lado — e fica sempre visível, em qualquer dispositivo.
+   Bem discreto (cinza-claro translúcido) para não tampar a visão do jogo. */
+.zoom-slider {
+  height: var(--hud-top-h);
+  width: 148px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 14px;
+  background: rgba(20, 20, 20, 0.16);
+  backdrop-filter: blur(3px);
+  pointer-events: auto;
+  touch-action: none;
+}
+.zoom-icon { font-size: 13px; line-height: 1; user-select: none; opacity: 0.75; }
+.zoom-range {
+  flex: 1;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.zoom-range::-webkit-slider-runnable-track {
+  height: 4px;
+  background: rgba(220, 220, 220, 0.4);
+  border-radius: 2px;
+}
+.zoom-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -7px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(224, 224, 224, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+.zoom-range::-moz-range-track {
+  height: 4px;
+  background: rgba(220, 220, 220, 0.4);
+  border-radius: 2px;
+}
+.zoom-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(224, 224, 224, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}

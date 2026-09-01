@@ -9,10 +9,8 @@ body.is-touch .mobile-only { display: block; }
 body.is-touch .desktop-only { display: none; }
 body.is-touch .weapon-key { display: none; }
 
-/* No mobile (toque OU tela estreita), os boosters entram no fluxo do topo,
-   em linha ao lado do placar, com texto abreviado numa linha só */
-body.is-touch .booster-panel { position: static; flex-direction: row; }
-body.is-touch .hud-topleft { align-items: flex-start; flex-wrap: wrap; row-gap: 8px; }
+/* No mobile (toque OU tela estreita), os boosters usam texto abreviado
+   numa linha só para caber ao lado do placar */
 body.is-touch .booster-btn {
   display: grid;
   grid-template-columns: auto 1fr;
@@ -39,8 +37,6 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
   grid-row: 1;
 }
 @media (max-width: 860px) {
-  .booster-panel { position: static; flex-direction: row; }
-  .hud-topleft { align-items: flex-start; flex-wrap: wrap; row-gap: 8px; }
   .booster-btn {
     display: grid;
     grid-template-columns: auto 1fr;
@@ -135,6 +131,9 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
   .bar-text { font-size: 9.5px; }
 
   .joystick.joystick-zone { height: 78vh; }
+  .zoom-slider { padding: 0 9px; }
+  .zoom-range::-webkit-slider-thumb { width: 15px; height: 15px; margin-top: -5.5px; }
+  .zoom-range::-moz-range-thumb { width: 15px; height: 15px; }
   .joystick-base { width: 106px; height: 106px; }
   .joystick-knob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
 
