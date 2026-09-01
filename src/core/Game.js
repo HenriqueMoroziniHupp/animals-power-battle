@@ -39,7 +39,12 @@ export class Game {
     this.state = new GameState(STATE.MENU)
     this.audio = new AudioManager()
 
-    this.biome = biomeForLevel(1)
+    // Progresso salvo: o jogador volta no nivel (e no bioma correspondente)
+    // em que estava, mesmo depois de um F5 ou de fechar o navegador.
+    this.saves = new SaveGame()
+    const salvo = this.saves.load()
+
+    this.biome = biomeForLevel(salvo.level)
     this.scene3d.applyBiome(this.biome)
 
     this.terrain = new Terrain(this.biome, 1337)
@@ -50,11 +55,6 @@ export class Game {
       this.scene3d.scene, this.terrain, this.collision, this.biome, 4242,
     )
     this.player = new Player(this.scene3d.scene, this.terrain, this.collision)
-
-    // Progresso salvo: o jogador volta no nivel em que estava, mesmo depois
-    // de um F5 ou de fechar o navegador.
-    this.saves = new SaveGame()
-    const salvo = this.saves.load()
     if (salvo.level > 1 || salvo.totalEvo > 0) this.player.reset(salvo)
 
     this.camera = new CameraController(this.scene3d.camera, this.terrain)
@@ -205,10 +205,10 @@ export class Game {
   }
 
   resumeFromAd() {
+    this.audio.resume()
     if (this._stateBeforeAd === STATE.PLAYING) {
       this.state.set(STATE.PLAYING)
       this.input.setEnabled(true)
-      this.audio.resume()
     } else {
       this.state.set(this._stateBeforeAd ?? STATE.MENU)
     }
@@ -249,9 +249,10 @@ export class Game {
     this.camera.setSpeciesScale(this.player.species.scale)
     this.camera.snap()
 
-    // Volta ao bioma inicial se estava em outro.
-    const first = biomeForLevel(1)
-    if (first.id !== this.biome.id) this._rebuildWorld(first)
+    // Bioma correspondente ao nivel retomado (a morte penaliza 1 nivel, mas
+    // nao necessariamente troca de bioma).
+    const target = biomeForLevel(this.player.level)
+    if (target.id !== this.biome.id) this._rebuildWorld(target)
 
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
