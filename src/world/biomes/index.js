@@ -3,7 +3,18 @@ import savanna from './savanna.js'
 import rocky from './rocky.js'
 import { BALANCE } from '../../config/balance.js'
 
-export const BIOMES = { forest, savanna, rocky }
+export const BIOMES = {
+  forest,
+  savanna,
+  rocky,
+  // Marco final (nível 34): a MESMA floresta (mesmo id → mesma seed de
+  // terreno em Game._rebuildWorld), só o card de apresentação muda.
+  forestFinal: {
+    ...forest,
+    name: 'FLORESTA ANCESTRAL',
+    desc: 'De volta ao lar. Agora como Super Calango.',
+  },
+}
 
 /** Bioma correspondente ao nível do player. */
 export function biomeForLevel(level) {

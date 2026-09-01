@@ -69,6 +69,10 @@ export class Entity {
 
     this.mesh.traverse((o) => {
       if (!o.isMesh) return
+      // Meshes de FX embutidos na criatura (ex.: chamas aditivas do Super
+      // Calango) não participam da piscada: a variante de flash de um
+      // material aditivo sem emissive ficaria errada e vazaria no cache.
+      if (o.userData.noFlash) return
       if (on) {
         o.userData.baseMaterial = o.material
         o.material = flashVariantOf(o.material)

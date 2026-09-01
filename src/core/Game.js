@@ -71,7 +71,12 @@ export class Game {
       document.getElementById('healthbar-layer'), this.scene3d.camera,
     )
 
-    this.boosters = new BoosterManager()
+    // Com o Super Calango o booster de ataque fica permanentemente no
+    // máximo (provider: auto-corrige em evolução, boot de save e regressão
+    // por morte, sem estado extra a persistir).
+    this.boosters = new BoosterManager({
+      isAttackMaxed: () => this.player.species.id === 'superCalango',
+    })
     this.combat = new CombatSystem({
       player: this.player,
       collision: this.collision,
@@ -99,7 +104,9 @@ export class Game {
       getMobs: () => this.mobs,
       getProps: () => this.world.props,
     })
-    this.currentAttack = this.attacks.laser
+    // A arma "laser" resolve para o laser duplo quando a espécie pede
+    // (ex.: save retomado já no Super Calango).
+    this.currentAttack = this._laserFor()
 
     /** @type {Mob[]} */
     this.mobs = []
@@ -248,6 +255,7 @@ export class Game {
     this._progressoAposMorte = null
     this.camera.setSpeciesScale(this.player.species.scale)
     this.camera.snap()
+    this._syncAttackToSpecies()
 
     // Bioma correspondente ao nivel retomado (a morte penaliza 1 nivel, mas
     // nao necessariamente troca de bioma).
@@ -274,6 +282,7 @@ export class Game {
     this.player.reset()
     this.camera.setSpeciesScale(this.player.species.scale)
     this.camera.snap()
+    this._syncAttackToSpecies()
 
     const first = biomeForLevel(1)
     if (first.id !== this.biome.id) this._rebuildWorld(first)
@@ -295,8 +304,31 @@ export class Game {
     this.overlays.setQualityState(next)
   }
 
+  /** Laser adequado à espécie atual: duplo para quem tem `dualLasers`. */
+  _laserFor() {
+    return this.player.species.dualLasers
+      ? this.attacks.doubleLaser
+      : this.attacks.laser
+  }
+
+  /**
+   * Re-resolve a arma ativa após uma troca de espécie: se o jogador está com
+   * um laser, troca laser <-> laser duplo conforme a espécie (evolução para
+   * o Super Calango no 34 e regressão por morte para o 33).
+   */
+  _syncAttackToSpecies() {
+    const isLaser = this.currentAttack === this.attacks.laser
+      || this.currentAttack === this.attacks.doubleLaser
+    if (!isLaser) return
+    const resolved = this._laserFor()
+    if (resolved === this.currentAttack) return
+    this.currentAttack.stop()
+    this.currentAttack = resolved
+  }
+
   setAttack(id) {
-    const next = this.attacks[id]
+    // O slot "laser" (tecla 1 e HUD) aponta para o laser da espécie atual.
+    const next = id === 'laser' ? this._laserFor() : this.attacks[id]
     if (!next || next === this.currentAttack) return
     this.currentAttack.stop()
     this.currentAttack = next
@@ -317,6 +349,7 @@ export class Game {
       this.audio.play('levelup')
       this.saves.save(this.player)
       this.camera.setSpeciesScale(this.player.species.scale)
+      if (e.evolved) this._syncAttackToSpecies()
       if (isBiomeThreshold(e.level)) this._transitionBiome(e.level)
     }
   }
@@ -357,6 +390,7 @@ export class Game {
     this.player.terrain = this.terrain
     this.attacks.laser.terrain = this.terrain
     this.attacks.flame.terrain = this.terrain
+    this.attacks.doubleLaser.terrain = this.terrain
     this.scorch.terrain = this.terrain
     this.scorch.clear()
 
@@ -385,7 +419,10 @@ export class Game {
   _updateSpawning(dt) {
     this._spawnTimer -= dt
     if (this._spawnTimer > 0) return
-    this._spawnTimer = 0.8
+    // Espécies com `spawnSurge` (Super Calango) repõem mobs mais rápido e
+    // com teto maior — o poder máximo esvazia o mundo rápido demais.
+    const surge = this.player.species.spawnSurge ? BALANCE.surgeSpawn : null
+    this._spawnTimer = surge?.interval ?? BALANCE.mobSpawnInterval
 
     // Recicla os que ficaram longe demais.
     for (let i = this.mobs.length - 1; i >= 0; i--) {
@@ -401,7 +438,7 @@ export class Game {
       }
     }
 
-    if (this.mobs.length >= BALANCE.maxActiveMobs) return
+    if (this.mobs.length >= (surge?.maxActiveMobs ?? BALANCE.maxActiveMobs)) return
 
     const id = pickMobFor(this.biome, Math.random)
     const def = MOBS[id]

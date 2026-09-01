@@ -63,10 +63,21 @@ export const BALANCE = {
     { level: 1, biome: 'forest' },
     { level: 10, biome: 'savanna' },
     { level: 22, biome: 'rocky' },
+    // Marco final: concluiu as rochosas, volta ao lar — e fica nele para
+    // sempre (biomeForLevel pega o ÚLTIMO threshold alcançado).
+    { level: 34, biome: 'forestFinal' },
   ],
 
   /** Orçamento de entidades vivas — segura o framerate no mobile. */
   maxActiveMobs: 40,
+  /** Intervalo entre tentativas de spawn de mob, em segundos. */
+  mobSpawnInterval: 0.8,
+  /**
+   * Spawn acelerado para espécies com `spawnSurge` (Super Calango): a
+   * explosão máxima limpa grupos inteiros num tiro, então o mundo precisa
+   * repor mobs bem mais rápido para manter a pressão — e o espetáculo.
+   */
+  surgeSpawn: { interval: 0.25, maxActiveMobs: 50 },
   maxActiveProps: 260,
   /** Distância além da qual um mob é reciclado (respawn em outro lugar). */
   mobRecycleDistance: 95,
@@ -155,4 +166,15 @@ export const ATTACKS = {
       range: 11,
     },
   },
+}
+
+/**
+ * Laser duplo (Super Calango): mesmos números do laser comum — a cadência
+ * TOTAL continua 10 tiros/s, só alternando o lado do corpo a cada disparo,
+ * então o DPS não muda e o balance fica intacto.
+ */
+ATTACKS.doubleLaser = {
+  ...ATTACKS.laser,
+  id: 'doubleLaser',
+  name: 'Laser Duplo',
 }

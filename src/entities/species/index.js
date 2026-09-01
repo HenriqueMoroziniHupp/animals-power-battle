@@ -4,9 +4,10 @@ import lobo from './lobo.js'
 import pantera from './pantera.js'
 import urso from './urso.js'
 import bigKong from './bigKong.js'
+import superCalango from './superCalango.js'
 
 /** Escada evolutiva, em ordem crescente de minLevel. */
-export const SPECIES_LADDER = [calango, raposa, lobo, pantera, urso, bigKong]
+export const SPECIES_LADDER = [calango, raposa, lobo, pantera, urso, bigKong, superCalango]
 
 export const SPECIES = Object.fromEntries(SPECIES_LADDER.map((s) => [s.id, s]))
 

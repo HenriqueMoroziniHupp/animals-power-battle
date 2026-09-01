@@ -3,13 +3,24 @@ import { BALANCE } from '../config/balance.js'
 /**
  * Boosters ativados por anúncio recompensado.
  * Cada vídeo assistido adiciona um "stack" com duração própria.
+ *
+ * O booster de ataque pode ficar PERMANENTEMENTE no máximo via provider
+ * (`isAttackMaxed`): é o caso do Super Calango, cuja explosão máxima é
+ * parte da fantasia da forma final — sem anúncio, sem timer.
  */
 export class BoosterManager {
-  constructor() {
+  /** @param {{isAttackMaxed?: () => boolean}} [opts] */
+  constructor(opts = {}) {
     /** @type {{attack: number[], evo: number[]}} timestamps de expiração */
     this.stacks = { attack: [], evo: [] }
     this._now = 0
     this.listeners = []
+    this._isAttackMaxed = opts.isAttackMaxed ?? (() => false)
+  }
+
+  /** true se o booster está travado no máximo (independe de stacks). */
+  isPermanent(kind) {
+    return kind === 'attack' && this._isAttackMaxed()
   }
 
   on(fn) { this.listeners.push(fn) }
@@ -19,6 +30,8 @@ export class BoosterManager {
   activate(kind) {
     const cfg = BALANCE.boosters[kind]
     if (!cfg) return false
+    // Já está no máximo permanente: nenhum stack faria diferença.
+    if (this.isPermanent(kind)) return false
     const list = this.stacks[kind]
     if (list.length >= cfg.maxStacks) return false
     list.push(this._now + cfg.duration)
@@ -40,6 +53,8 @@ export class BoosterManager {
 
   get attackMultiplier() {
     const cfg = BALANCE.boosters.attack
+    // Permanente: teto de stacks fixo (stacks restantes expiram sozinhos).
+    if (this.isPermanent('attack')) return Math.pow(cfg.multiplier, cfg.maxStacks)
     return Math.pow(cfg.multiplier, this.stacks.attack.length)
   }
 
@@ -56,15 +71,20 @@ export class BoosterManager {
   }
 
   status() {
+    const attackPerm = this.isPermanent('attack')
     return {
       attack: {
-        active: this.stacks.attack.length > 0,
-        stacks: this.stacks.attack.length,
-        remaining: this.remaining('attack'),
+        active: attackPerm || this.stacks.attack.length > 0,
+        permanent: attackPerm,
+        stacks: attackPerm
+          ? BALANCE.boosters.attack.maxStacks
+          : this.stacks.attack.length,
+        remaining: attackPerm ? 0 : this.remaining('attack'),
         duration: BALANCE.boosters.attack.duration,
         multiplier: this.attackMultiplier,
       },
       evo: {
+        permanent: false,
         active: this.stacks.evo.length > 0,
         stacks: this.stacks.evo.length,
         remaining: this.remaining('evo'),

@@ -108,6 +108,9 @@ export class Player extends Entity {
 
     this.updateFlash(dt)
     this._syncMesh(moving)
+    // Animação própria da espécie (ex.: chamas do Super Calango). Fica aqui,
+    // e não em _syncMesh, porque precisa de dt real e de um frame de verdade.
+    this.mesh.userData.animate?.(dt)
   }
 
   _syncMesh(moving = false) {
@@ -133,13 +136,22 @@ export class Player extends Entity {
     }
   }
 
-  /** Ponto de origem dos ataques (boca/frente da criatura). */
-  getMuzzle(out = new THREE.Vector3()) {
+  /**
+   * Ponto de origem dos ataques (boca/frente da criatura).
+   *
+   * @param {THREE.Vector3} [out]
+   * @param {number} [side] -1 esquerda, +1 direita, 0 centro. Só desloca em
+   *   espécies com `muzzleOffset` (ex.: os dois canhões do Super Calango);
+   *   o default 0 preserva todos os chamadores existentes.
+   */
+  getMuzzle(out = new THREE.Vector3(), side = 0) {
     const s = this.species.scale
+    // Perpendicular ao facing: forward é (sin f, cos f), direita é (cos f, -sin f).
+    const lateral = side * (this.species.muzzleOffset ?? 0) * s
     out.set(
-      this.position.x + Math.sin(this.facing) * 1.6 * s,
-      this.position.y + 1.2 * s,
-      this.position.z + Math.cos(this.facing) * 1.6 * s,
+      this.position.x + Math.sin(this.facing) * 1.6 * s + Math.cos(this.facing) * lateral,
+      this.position.y + (this.species.muzzleHeight ?? 1.2) * s,
+      this.position.z + Math.cos(this.facing) * 1.6 * s - Math.sin(this.facing) * lateral,
     )
     return out
   }
@@ -199,6 +211,9 @@ export class Player extends Entity {
 
     this.mesh.parent?.remove(this.mesh)
     this.mesh.traverse((o) => { if (o.isMesh) o.geometry?.dispose?.() })
+    // Materiais próprios da espécie (clonados no build, fora do cache
+    // compartilhado) precisam de dispose explícito.
+    this.mesh.userData.disposables?.forEach((m) => m.dispose())
 
     this.species = next
     this.radius = next.radius

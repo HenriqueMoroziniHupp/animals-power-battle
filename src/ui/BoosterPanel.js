@@ -17,9 +17,21 @@ export class BoosterPanel {
       btn.addEventListener('click', () => this._request(kind))
     }
     this._cache = {}
+    // Textos originais, restaurados ao sair do estado permanente "MAX"
+    // (regressão por morte tira o Super Calango).
+    this._orig = {}
+    for (const [kind, btn] of Object.entries(this.btns)) {
+      this._orig[kind] = {
+        sub: btn.querySelector('.booster-sub').textContent,
+        short: btn.querySelector('.booster-title-short').textContent,
+      }
+    }
   }
 
   _request(kind) {
+    // Permanentemente no máximo: clique inerte — jamais mostrar o anúncio,
+    // senão o jogador assiste o vídeo sem ganhar nada.
+    if (this.boosters.isPermanent?.(kind)) return
     const btn = this.btns[kind]
     if (btn.classList.contains('pending')) return
     btn.classList.add('pending')
@@ -44,6 +56,30 @@ export class BoosterPanel {
       const btn = this.btns[kind]
       const timerEl = btn.querySelector('.booster-timer')
       const fillEl = btn.querySelector('.booster-fill')
+
+      // Estado permanente "MAX" (Super Calango): sem timer, sem anúncio.
+      const perm = s.permanent === true
+      if (this._cache[kind + 'Perm'] !== perm) {
+        this._cache[kind + 'Perm'] = perm
+        btn.classList.toggle('maxed', perm)
+        const subEl = btn.querySelector('.booster-sub')
+        const shortEl = btn.querySelector('.booster-title-short')
+        if (perm) {
+          btn.classList.add('active')
+          this._cache[kind + 'Active'] = true
+          timerEl.hidden = false
+          timerEl.textContent = 'MAX'
+          fillEl.style.width = '100%'
+          subEl.textContent = 'DANO MÁXIMO'
+          shortEl.textContent = 'Atk MAX'
+        } else {
+          subEl.textContent = this._orig[kind].sub
+          shortEl.textContent = this._orig[kind].short
+        }
+        // Invalida o cache de segundos para o próximo estado re-renderizar.
+        this._cache[kind + 'Secs'] = -1
+      }
+      if (perm) continue
 
       if (this._cache[kind + 'Active'] !== s.active) {
         this._cache[kind + 'Active'] = s.active
