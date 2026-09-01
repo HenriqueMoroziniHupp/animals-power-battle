@@ -9,9 +9,13 @@ body.is-touch .mobile-only { display: block; }
 body.is-touch .desktop-only { display: none; }
 body.is-touch .weapon-key { display: none; }
 
+/* No toque, os boosters entram no fluxo do topo: empilhados ao lado do placar */
+body.is-touch .booster-panel { position: static; }
+body.is-touch .hud-topleft { align-items: flex-start; }
+
 /* Telas médias: encolhe a barra inferior e os boosters */
 @media (max-width: 860px) {
-  .booster-btn { width: 176px; padding: 9px 10px; }
+  .booster-btn { padding: 9px 10px; }
   .booster-title { font-size: 11.5px; }
   .booster-sub { font-size: 10px; }
   .hud-bottom { gap: 8px; padding: 9px 10px; }
@@ -68,13 +72,6 @@ body.is-touch .weapon-key { display: none; }
 
 /* Paisagem em celular: altura curta, tudo encolhe e sai do centro */
 @media (max-height: 480px) and (orientation: landscape) {
-  .booster-panel {
-    top: max(10px, env(safe-area-inset-top));
-    left: auto;
-    right: max(10px, env(safe-area-inset-right));
-    transform: none;
-    flex-direction: row;
-  }
   .booster-btn { width: auto; padding: 6px 9px; gap: 7px; }
   .booster-ad { width: 22px; height: 22px; font-size: 12px; }
   .booster-title { font-size: 9.5px; }

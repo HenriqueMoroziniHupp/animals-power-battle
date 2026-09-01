@@ -95,10 +95,12 @@ html, body {
 .score-icon { font-size: 15px; }
 
 /* ---------- Boosters ---------- */
+/* Filho de .hud-topleft: no desktop sai do fluxo e fica logo abaixo do
+   placar; no toque vira estático e empilha ao lado dele (ver mobile.css). */
 .booster-panel {
   position: absolute;
-  left: max(12px, env(safe-area-inset-left));
-  top: calc(max(12px, env(safe-area-inset-top)) + 44px + 10px);
+  left: 0;
+  top: calc(100% + 10px);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -109,7 +111,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 210px;
+  /* width: 210px; */
   padding: 10px 12px;
   border: 1px solid var(--panel-line);
   border-radius: var(--radius);

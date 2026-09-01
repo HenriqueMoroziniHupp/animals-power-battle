@@ -28,28 +28,30 @@
           <span id="score-kills">0</span>
         </div>
       </div>
-    </div>
 
-    <!-- Painel lateral esquerdo: boosters de monetização -->
-    <div class="booster-panel" id="booster-panel">
-      <button class="booster-btn" id="booster-atk" data-booster="attack">
-        <span class="booster-ad">⚔️</span>
-        <span class="booster-body">
-          <span class="booster-title">⚔️ ATTACK BOOSTER</span>
-          <span class="booster-sub">+50% DANO</span>
-        </span>
-        <span class="booster-timer" hidden>00:00</span>
-        <span class="booster-fill"></span>
-      </button>
-      <button class="booster-btn" id="booster-evo" data-booster="evo">
-        <span class="booster-ad">⭐</span>
-        <span class="booster-body">
-          <span class="booster-title">⭐ EVO MINING</span>
-          <span class="booster-sub">2x EVO</span>
-        </span>
-        <span class="booster-timer" hidden>00:00</span>
-        <span class="booster-fill"></span>
-      </button>
+      <!-- Boosters de monetização: no desktop ficam abaixo do placar
+           (posicionamento absoluto); no toque entram no fluxo, empilhados
+           ao lado do placar. -->
+      <div class="booster-panel" id="booster-panel">
+        <button class="booster-btn" id="booster-atk" data-booster="attack">
+          <span class="booster-ad">⚔️</span>
+          <span class="booster-body">
+            <span class="booster-title">⚔️ ATTACK BOOSTER</span>
+            <span class="booster-sub">+50% DANO</span>
+          </span>
+          <span class="booster-timer" hidden>00:00</span>
+          <span class="booster-fill"></span>
+        </button>
+        <button class="booster-btn" id="booster-evo" data-booster="evo">
+          <span class="booster-ad">⭐</span>
+          <span class="booster-body">
+            <span class="booster-title">⭐ EVO MINING</span>
+            <span class="booster-sub">2x EVO</span>
+          </span>
+          <span class="booster-timer" hidden>00:00</span>
+          <span class="booster-fill"></span>
+        </button>
+      </div>
     </div>
 
     <!-- Barra inferior central: nível, EVO, HP, ATK -->
