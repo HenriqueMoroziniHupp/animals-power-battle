@@ -14,9 +14,18 @@ export const BALANCE = {
     return Math.round(baseHp + (level - 1) * baseHp * 0.16)
   },
 
-  /** ATK no nível N, dado o baseAtk da espécie atual. */
-  atkAt(level, baseAtk) {
-    return Math.round(baseAtk + (level - 1) * baseAtk * 0.22)
+  /**
+   * ATK no nível N, dada a espécie atual.
+   *
+   * Conta só os níveis ganhos DENTRO da espécie: o baseAtk de cada espécie
+   * já embute o poder acumulado até seu nível de estreia (a escada foi
+   * desenhada a ~10%/nível — urso no 27 dá 99, Big Kong estreia com 105).
+   * Multiplicar pelo nível global contava esse crescimento duas vezes:
+   * o Big Kong estreava com ATK ~729 e matava qualquer mob com um tiro.
+   */
+  atkAt(level, species) {
+    const levelsInSpecies = Math.max(0, level - species.minLevel)
+    return Math.round(species.baseAtk * (1 + levelsInSpecies * 0.1))
   },
 
   /**

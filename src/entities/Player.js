@@ -31,7 +31,7 @@ export class Player extends Entity {
     this.species = species
     this.maxHp = BALANCE.maxHpAt(1, species.baseHp)
     this.hp = this.maxHp
-    this.atk = BALANCE.atkAt(1, species.baseAtk)
+    this.atk = BALANCE.atkAt(1, species)
 
     this.facing = 0
     this.velocity = new THREE.Vector3()
@@ -183,7 +183,7 @@ export class Player extends Entity {
 
     this.maxHp = BALANCE.maxHpAt(this.level, this.species.baseHp)
     this.hp = this.maxHp // level up cura por completo
-    this.atk = BALANCE.atkAt(this.level, this.species.baseAtk)
+    this.atk = BALANCE.atkAt(this.level, this.species)
     this._evoPulse = 0.45
 
     this._emit('levelup', {
@@ -231,7 +231,7 @@ export class Player extends Entity {
 
     this.maxHp = BALANCE.maxHpAt(level, especie.baseHp)
     this.hp = this.maxHp
-    this.atk = BALANCE.atkAt(level, especie.baseAtk)
+    this.atk = BALANCE.atkAt(level, especie)
     this.dead = false
     this.invuln = 0
     this.timeSinceHurt = 99
