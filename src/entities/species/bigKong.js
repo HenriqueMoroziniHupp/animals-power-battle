@@ -6,7 +6,7 @@ export default {
   id: 'bigKong',
   name: 'Big Kong',
   minLevel: 28,
-  scale: 0.85,
+  scale: 1.1,
   radius: 0.85,
   speed: 10.0,
   baseHp: 1000,
