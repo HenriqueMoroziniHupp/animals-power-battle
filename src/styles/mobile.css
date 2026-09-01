@@ -42,7 +42,7 @@ body.is-touch .weapon-key { display: none; }
   .icon-btn { width: 40px; height: 40px; font-size: 19px; }
 
   /* Boosters encolhem mas mantêm o texto do bônus visível */
-  .booster-btn { width: 158px; padding: 7px 9px; gap: 7px; }
+  .booster-btn { width: auto; padding: 7px 9px; gap: 7px; }
   .booster-ad { width: 24px; height: 24px; font-size: 13px; }
   .booster-title { font-size: 10px; }
   .booster-sub { font-size: 9.5px; }
