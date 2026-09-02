@@ -24,3 +24,9 @@ export function speciesForLevel(level) {
 export function isEvolutionLevel(level) {
   return SPECIES_LADDER.some((s) => s.minLevel === level && s.minLevel > 1)
 }
+
+/** Espécie seguinte na escada evolutiva, ou null se já é a última. */
+export function nextSpeciesAfter(species) {
+  const i = SPECIES_LADDER.indexOf(species)
+  return i >= 0 && i < SPECIES_LADDER.length - 1 ? SPECIES_LADDER[i + 1] : null
+}

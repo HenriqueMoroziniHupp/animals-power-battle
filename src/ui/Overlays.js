@@ -15,6 +15,7 @@ export class Overlays {
       goLevel: document.getElementById('go-level'),
       goEvo: document.getElementById('go-evo'),
       goKills: document.getElementById('go-kills'),
+      btnBiomeContinue: document.getElementById('btn-biome-continue'),
     }
 
     document.getElementById('btn-play').addEventListener('click', onPlay)
@@ -76,13 +77,20 @@ export class Overlays {
   }
   hideGameOver() { this._hide(this.el.gameover) }
 
-  /** Card de transição de bioma; resolve quando termina. */
-  showBiome(biome, ms = 2200) {
+  /** Card de transição de bioma; resolve no CONTINUAR ou após `ms`. */
+  showBiome(biome, ms = 5000) {
     this.el.biomeName.textContent = biome.name
     this.el.biomeDesc.textContent = biome.desc
     this._show(this.el.biome)
     return new Promise((resolve) => {
-      setTimeout(() => { this._hide(this.el.biome); resolve() }, ms)
+      const done = () => {
+        clearTimeout(timer)
+        this.el.btnBiomeContinue.removeEventListener('click', done)
+        this._hide(this.el.biome)
+        resolve()
+      }
+      const timer = setTimeout(done, ms)
+      this.el.btnBiomeContinue.addEventListener('click', done)
     })
   }
 

@@ -24,6 +24,8 @@ import { BoosterManager } from '../monetization/Boosters.js'
 import { HUD } from '../ui/HUD.js'
 import { BoosterPanel } from '../ui/BoosterPanel.js'
 import { Overlays } from '../ui/Overlays.js'
+import { EvolutionScreen } from '../ui/EvolutionScreen.js'
+import { nextSpeciesAfter } from '../entities/species/index.js'
 import { Joystick } from '../ui/Joystick.js'
 import { TouchButtons } from '../ui/TouchButtons.js'
 import { ZoomSlider } from '../ui/ZoomSlider.js'
@@ -127,6 +129,7 @@ export class Game {
     })
     this.overlays.setSoundState(!this.audio.muted)
     this.overlays.setQualityState(this.scene3d.quality)
+    this.evolutionScreen = new EvolutionScreen()
 
     if (this.input.isTouch) {
       document.getElementById('touch-layer').hidden = false
@@ -252,6 +255,7 @@ export class Game {
 
   restart() {
     this.overlays.hideAll()
+    this.evolutionScreen.abort()
     this._clearMobs()
     this.fire.clear()
     this.scorch.clear()
@@ -281,6 +285,7 @@ export class Game {
     this.saves.clear()
     this._progressoAposMorte = null
     this.overlays.hideAll()
+    this.evolutionScreen.abort()
     this._clearMobs()
     this.fire.clear()
     this.scorch.clear()
@@ -358,21 +363,35 @@ export class Game {
       this.saves.save(this.player)
       this.camera.setSpeciesScale(this.player.species.scale)
       if (e.evolved) this._syncAttackToSpecies()
-      if (isBiomeThreshold(e.level)) this._transitionBiome(e.level)
+      if (e.evolved || isBiomeThreshold(e.level)) this._evolutionSequence(e)
     }
   }
 
-  async _transitionBiome(level) {
-    const next = biomeForLevel(level)
-    if (next.id === this.biome.id) return
+  /**
+   * Pausa única para a celebração do level-up: tela de evolução (quem você
+   * virou -> quem vem a seguir) e, se o nível também é threshold, a transição
+   * de bioma na sequência. Toda troca de bioma coincide com uma evolução, mas
+   * nem toda evolução troca de bioma (níveis 5, 16, 28 só mostram a tela).
+   */
+  async _evolutionSequence(e) {
+    const nextBiome = isBiomeThreshold(e.level) ? biomeForLevel(e.level) : null
+    const trocaBioma = nextBiome && nextBiome.id !== this.biome.id
+    if (!e.evolved && !trocaBioma) return
 
     this.state.set(STATE.BIOME_TRANSITION)
     this.input.setEnabled(false)
     this.currentAttack.stop()
 
-    await this.overlays.showBiome(next, 2000)
-    this._rebuildWorld(next)
-    await new Promise((r) => AdManager.showInterstitialAd(r))
+    if (e.evolved) {
+      await this.evolutionScreen.show(
+        this.player.species, nextSpeciesAfter(this.player.species),
+      )
+    }
+    if (trocaBioma) {
+      await this.overlays.showBiome(nextBiome)
+      this._rebuildWorld(nextBiome)
+      await new Promise((r) => AdManager.showInterstitialAd(r))
+    }
 
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)

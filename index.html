@@ -163,11 +163,37 @@
     </div>
   </div>
 
-  <div class="overlay hidden transition-overlay" id="overlay-biome">
+  <!-- Tela de evolução: quem você virou -> quem vem a seguir (render 3D) -->
+  <div class="overlay hidden transition-overlay evo-overlay" id="overlay-evolution">
+    <div class="evo-card">
+      <span class="biome-eyebrow">EVOLUÇÃO</span>
+      <h2 class="evo-title">VOCÊ EVOLUIU!</h2>
+      <div class="evo-stage">
+        <canvas id="evolution-canvas"></canvas>
+        <span class="evo-arrow" aria-hidden="true">&#10148;</span>
+      </div>
+      <div class="evo-labels">
+        <div class="evo-slot">
+          <span class="evo-slot-eyebrow">VOCÊ AGORA É</span>
+          <span class="evo-slot-name evo-slot-name-current" id="evo-current-name">Raposa</span>
+        </div>
+        <div class="evo-slot evo-slot-next">
+          <span class="evo-slot-eyebrow">PRÓXIMA EVOLUÇÃO</span>
+          <span class="evo-slot-name" id="evo-next-name">Lobo</span>
+          <span class="evo-slot-level" id="evo-next-level">NÍVEL 10</span>
+        </div>
+      </div>
+      <p class="evo-max-msg">PODER MÁXIMO! Você chegou ao topo da cadeia alimentar.</p>
+      <button class="primary-btn" id="btn-evo-continue">CONTINUAR</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden transition-overlay biome-overlay" id="overlay-biome">
     <div class="biome-card">
       <span class="biome-eyebrow">NOVO BIOMA</span>
       <h2 id="biome-name">SAVANA</h2>
       <p id="biome-desc">Predadores maiores. Recompensas maiores.</p>
+      <button class="primary-btn" id="btn-biome-continue">CONTINUAR</button>
     </div>
   </div>
 
