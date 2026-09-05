@@ -93,9 +93,24 @@ export function translateDOM(root = document.body) {
   // 1. Atualiza lang do documento
   document.documentElement.lang = currentLanguage === 'pt' ? 'pt-BR' : 'en'
 
-  // 2. Elementos com filho único de texto (permite tags HTML como <b> e &middot;)
+  // 2. Elementos com data-i18n explícito (permitem texto inicial amigável sem piscar template)
+  for (const el of root.querySelectorAll('[data-i18n]')) {
+    const key = el.getAttribute('data-i18n')
+    if (key) {
+      const translated = t(key)
+      if (translated.includes('<') || translated.includes('&')) {
+        el.innerHTML = translated
+      } else {
+        el.textContent = translated
+      }
+    }
+  }
+
+  // 3. Elementos com filho único de texto (sintaxe inline t('chave'))
   const allElements = root.querySelectorAll('*')
   for (const el of allElements) {
+    if (el.hasAttribute('data-i18n')) continue
+
     // Se o elemento possui apenas um nó filho de texto
     if (el.childNodes.length === 1 && el.firstChild.nodeType === Node.TEXT_NODE) {
       const textNode = el.firstChild
@@ -112,8 +127,9 @@ export function translateDOM(root = document.body) {
       }
     }
 
-    // 3. Traduz atributos (title, aria-label, alt, etc.)
+    // 4. Traduz atributos (title, aria-label, alt, etc.)
     for (const attr of el.attributes) {
+      if (attr.name === 'data-i18n') continue
       if (!attr._i18nRaw && hasTranslation(attr.value)) {
         attr._i18nRaw = attr.value
       }
@@ -123,12 +139,12 @@ export function translateDOM(root = document.body) {
     }
   }
 
-  // 4. Nós de texto avulsos / com múltiplos irmãos (ex: <button>t('menu.sound') <b>ON</b></button>)
+  // 5. Nós de texto avulsos / com múltiplos irmãos (ex: <button>t('menu.sound') <b>ON</b></button>)
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null)
   let node
   while ((node = walker.nextNode())) {
-    // Pula se já foi traduzido como filho único pelo pai acima
-    if (node.parentElement && node.parentElement._i18nRaw) continue
+    // Pula se já foi traduzido como filho único pelo pai acima ou se tem data-i18n
+    if (node.parentElement && (node.parentElement._i18nRaw || node.parentElement.hasAttribute('data-i18n'))) continue
 
     if (!node._i18nRaw && hasTranslation(node.nodeValue)) {
       node._i18nRaw = node.nodeValue
