@@ -6,7 +6,7 @@
 export const BALANCE = {
   /** EVO necessário para sair do nível N para N+1. */
   evoForLevel(level) {
-    return Math.round(90 * Math.pow(1.18, level - 1))
+    return Math.round(90 * Math.pow(1.14, level - 1))
   },
 
   /** HP máximo no nível N, dado o baseHp da espécie atual. */
