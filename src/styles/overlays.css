@@ -4,13 +4,17 @@
   position: fixed;
   inset: 0;
   z-index: 40;
-  display: grid;
-  place-items: center;
-  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 2vh, 20px);
   background: radial-gradient(ellipse at center, rgba(16, 24, 34, 0.45), rgba(10, 15, 22, 0.65));
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: overlay-in 0.22s ease-out;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 .overlay.hidden { display: none; }
 
@@ -18,6 +22,9 @@
 
 .panel {
   width: min(440px, 100%);
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  margin: auto;
   padding: 28px 26px;
   border-radius: 22px;
   background: var(--panel);
@@ -61,6 +68,7 @@
 
 /* ---------- Botões ---------- */
 .primary-btn {
+  flex-shrink: 0;
   padding: 15px 22px;
   margin-top: 16px;
   border: none;
@@ -161,32 +169,45 @@
 .biome-overlay { pointer-events: auto; }
 
 .biome-card {
+  width: min(520px, 94vw);
+  max-height: calc(100dvh - 24px);
+  margin: auto;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: clamp(6px, 1.6vh, 10px);
   animation: biome-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.biome-card .primary-btn { margin-top: 8px; }
+.biome-card .primary-btn {
+  margin-top: 6px;
+  padding: clamp(9px, 1.6vh, 14px) clamp(22px, 4vw, 36px);
+  font-size: clamp(13px, 2vh, 16px);
+}
 .biome-eyebrow {
   display: block;
-  font-size: 12px;
+  font-size: clamp(9px, 1.6vh, 12px);
   font-weight: 800;
-  letter-spacing: 4px;
+  letter-spacing: 3.5px;
   opacity: 0.6;
-  margin-bottom: 6px;
+  margin-bottom: 2px;
 }
 .biome-card h2 {
-  font-size: clamp(34px, 10vw, 58px);
+  font-size: clamp(26px, 6vh, 52px);
   font-weight: 900;
   letter-spacing: 2px;
+  line-height: 1.1;
   background: linear-gradient(180deg, #ffe9a8, #ffb703);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
-.biome-card p { margin-top: 8px; font-size: 14px; opacity: 0.8; font-weight: 600; }
+.biome-card p {
+  margin-top: 2px;
+  font-size: clamp(12px, 2.2vh, 14px);
+  opacity: 0.8;
+  font-weight: 600;
+}
 
 @keyframes biome-in {
   from { transform: translateY(20px) scale(0.94); opacity: 0; }
@@ -195,22 +216,35 @@
 
 /* ---------- Tela de evolução ---------- */
 /* Herdamos o fundo dramático de .transition-overlay, mas aqui há um botão. */
-.evo-overlay { pointer-events: auto; }
+.evo-overlay {
+  pointer-events: auto;
+  padding: clamp(6px, 1.8vh, 16px);
+}
 
 .evo-card {
-  width: min(620px, 100%);
+  width: min(480px, 88vw);
+  max-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
+  gap: clamp(4px, 1.2vh, 8px);
   text-align: center;
-  animation: biome-in 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  margin: auto;
+  animation: biome-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.evo-card .biome-eyebrow {
+  margin-bottom: 0;
+  font-size: clamp(8.5px, 1.3vh, 11px);
+  letter-spacing: 2.5px;
 }
 
 .evo-title {
-  font-size: clamp(28px, 8vw, 44px);
+  font-size: clamp(18px, 3.8vh, 32px);
   font-weight: 900;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
+  line-height: 1.1;
   background: linear-gradient(180deg, #ffe9a8, #ffb703);
   -webkit-background-clip: text;
   background-clip: text;
@@ -220,21 +254,25 @@
 .evo-stage {
   position: relative;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 #evolution-canvas {
   display: block;
   width: 100%;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 2.2 / 1;
 }
 .evo-arrow {
   position: absolute;
-  top: 26%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: clamp(26px, 6vw, 40px);
+  font-size: clamp(18px, 3.5vh, 28px);
   color: var(--gold);
-  text-shadow: 0 0 18px rgba(255, 209, 102, 0.55);
+  text-shadow: 0 0 16px rgba(255, 209, 102, 0.6);
   animation: evo-arrow-nudge 1.1s ease-in-out infinite;
+  pointer-events: none;
 }
 @keyframes evo-arrow-nudge {
   0%, 100% { transform: translate(-50%, -50%); }
@@ -245,27 +283,29 @@
   width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 8px;
 }
 .evo-slot {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
+  text-align: center;
 }
 .evo-slot-eyebrow {
-  font-size: 11px;
+  font-size: clamp(8px, 1.2vh, 10px);
   font-weight: 800;
-  letter-spacing: 2.5px;
-  opacity: 0.6;
+  letter-spacing: 1.5px;
+  opacity: 0.65;
 }
 .evo-slot-name {
-  font-size: clamp(18px, 5vw, 26px);
+  font-size: clamp(14px, 2.8vh, 22px);
   font-weight: 900;
   letter-spacing: 1px;
+  line-height: 1.15;
 }
 .evo-slot-name-current { color: var(--gold); }
 .evo-slot-level {
-  font-size: 12px;
+  font-size: clamp(9.5px, 1.5vh, 11.5px);
   font-weight: 800;
   letter-spacing: 1px;
   color: var(--evo-b, #7ec850);
@@ -273,7 +313,7 @@
 
 .evo-max-msg {
   display: none;
-  font-size: 14px;
+  font-size: clamp(11px, 1.8vh, 13px);
   font-weight: 800;
   color: var(--gold);
   letter-spacing: 0.5px;
@@ -284,6 +324,48 @@
 .evo-max .evo-slot-next { display: none; }
 .evo-max .evo-labels { grid-template-columns: 1fr; }
 .evo-max .evo-max-msg { display: block; }
+
+.evo-card .primary-btn {
+  margin-top: 4px;
+  padding: clamp(7px, 1.4vh, 12px) clamp(22px, 4vw, 34px);
+  font-size: clamp(12px, 1.8vh, 15px);
+  flex-shrink: 0;
+}
+
+/* Escalonamento proporcional em 16:9 (640x360, 836x470, 1031x580) */
+@media (max-height: 520px) {
+  .evo-card {
+    width: min(420px, 86vw);
+    gap: 5px;
+  }
+  .evo-card .primary-btn { margin-top: 3px; padding: 7px 22px; font-size: 13px; }
+  .evo-slot-name { font-size: 16px; }
+  .evo-slot-eyebrow { font-size: 9px; }
+  .evo-slot-level { font-size: 10px; }
+  .evo-title { font-size: clamp(17px, 3.8vh, 23px); }
+}
+
+@media (max-height: 420px) {
+  .evo-card {
+    width: min(340px, 84vw);
+    gap: 4px;
+  }
+  .evo-card .primary-btn { margin-top: 2px; padding: 6px 18px; font-size: 12.5px; }
+  .evo-slot-name { font-size: 14px; }
+  .evo-slot-eyebrow { font-size: 8.5px; }
+  .evo-slot-level { font-size: 9.5px; }
+  .evo-title { font-size: 19px; }
+}
+
+@media (max-height: 340px) {
+  .evo-card {
+    width: min(280px, 82vw);
+    gap: 3px;
+  }
+  .evo-card .primary-btn { margin-top: 1px; padding: 5px 14px; font-size: 11.5px; }
+  .evo-slot-name { font-size: 12.5px; }
+  .evo-title { font-size: 16px; }
+}
 
 /* ---------- Anúncio simulado ---------- */
 .ad-overlay { background: rgba(2, 4, 8, 0.95); z-index: 60; }

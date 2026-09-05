@@ -27,11 +27,18 @@ export class EvolutionScreen {
     this._raf = null
     this._resolve = null
     this._t = 0
+    this._ro = null
 
     this.els.btn.addEventListener('click', () => this._close(true))
     window.addEventListener('resize', () => {
       if (!this.el.classList.contains('hidden')) this._resize()
     })
+    if (typeof ResizeObserver !== 'undefined' && this.canvas) {
+      this._ro = new ResizeObserver(() => {
+        if (!this.el.classList.contains('hidden')) this._resize()
+      })
+      this._ro.observe(this.canvas)
+    }
   }
 
   /**
@@ -90,22 +97,22 @@ export class EvolutionScreen {
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
 
     this.scene = new THREE.Scene()
-    this.camera = new THREE.PerspectiveCamera(38, 2, 0.1, 50)
-    this.camera.position.set(0, 1.7, 6.6)
-    this.camera.lookAt(0, 1.0, 0)
+    this.camera = new THREE.PerspectiveCamera(34, 2.2, 0.1, 50)
+    this.camera.position.set(0, 1.25, 5.4)
+    this.camera.lookAt(0, 0.82, 0)
 
     // Mesmo par de luzes do SceneManager: Lambert fica preto sem luz.
-    const sun = new THREE.DirectionalLight(0xffffff, 2.1)
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2)
     sun.position.set(6, 10, 8)
     this.scene.add(sun)
-    this.scene.add(new THREE.HemisphereLight(0xbfe3ff, 0x6b5a3e, 1.0))
+    this.scene.add(new THREE.HemisphereLight(0xbfe3ff, 0x6b5a3e, 1.1))
 
     // "Sombras" de contato: um disco escuro sob cada animal.
     this._shadowMat = new THREE.MeshBasicMaterial({
-      color: 0x000000, transparent: true, opacity: 0.3,
+      color: 0x000000, transparent: true, opacity: 0.28,
     })
     this._shadows = [0, 1].map(() => {
-      const disc = new THREE.Mesh(new THREE.CircleGeometry(1.3, 24), this._shadowMat)
+      const disc = new THREE.Mesh(new THREE.CircleGeometry(1.2, 24), this._shadowMat)
       disc.rotation.x = -Math.PI / 2
       disc.position.y = 0.01
       this.scene.add(disc)
@@ -116,7 +123,15 @@ export class EvolutionScreen {
   _buildModels(current, next) {
     this._disposeModels()
     const specs = next ? [current, next] : [current]
-    const xs = next ? [-2.5, 2.5] : [0]
+
+    // Calcula posição horizontal proporcional: 25% e 75% da largura da câmera
+    const aspect = this.canvas.clientWidth && this.canvas.clientHeight
+      ? (this.canvas.clientWidth / this.canvas.clientHeight)
+      : 2.2
+    const visibleHalfWidth = Math.tan((this.camera.fov * Math.PI / 180) / 2) * this.camera.position.z * aspect
+    const targetX = Math.min(2.1, Math.max(1.0, visibleHalfWidth * 0.5))
+    const xs = next ? [-targetX, targetX] : [0]
+
     // Esquerda olha para a direita e vice-versa: os dois em diagonal de 45°
     // de frente para a câmera. Sozinho (nível máximo), diagonal simples.
     const yaws = next ? [Math.PI / 4, -Math.PI / 4] : [Math.PI / 4]
@@ -127,15 +142,14 @@ export class EvolutionScreen {
       return g
     })
 
-    // Fator comum de enquadramento: preserva a diferença de tamanho entre as
-    // espécies (o próximo parecer MAIOR é parte do apelo).
+    // Escala heróica: os animais ocupam ~60% da altura da cena, com destaque claro
     const box = new THREE.Box3()
     let maxH = 0
     for (const g of groups) {
       box.setFromObject(g)
       maxH = Math.max(maxH, box.max.y - box.min.y)
     }
-    const fit = 2.2 / Math.max(maxH, 0.001)
+    const fit = 2.0 / Math.max(maxH, 0.001)
 
     this._models = groups.map((g, i) => {
       g.scale.multiplyScalar(fit)
@@ -152,7 +166,7 @@ export class EvolutionScreen {
       const disc = this._shadows[i]
       disc.position.x = m.group.position.x
       const footprint = Math.max(w, box.max.z - box.min.z)
-      disc.scale.setScalar(Math.max(footprint / 2.4, 0.5))
+      disc.scale.setScalar(Math.max(footprint / 2.2, 0.45))
     }
     this._shadows.forEach((o, i) => { o.visible = i < this._models.length })
   }
@@ -172,8 +186,22 @@ export class EvolutionScreen {
     if (!w || !h) return
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
     this.renderer.setSize(w, h, false)
-    this.camera.aspect = w / h
+    const aspect = w / h
+    this.camera.aspect = aspect
     this.camera.updateProjectionMatrix()
+
+    // Sincroniza a posição horizontal dos animais exatamente no centro de cada coluna (25% e 75% da largura visual)
+    if (this._models.length === 2) {
+      const visibleHalfWidth = Math.tan((this.camera.fov * Math.PI / 180) / 2) * this.camera.position.z * aspect
+      const targetX = Math.min(2.1, Math.max(1.0, visibleHalfWidth * 0.5))
+      this._models[0].group.position.x = -targetX
+      this._models[1].group.position.x = targetX
+      if (this._shadows[0]) this._shadows[0].position.x = -targetX
+      if (this._shadows[1]) this._shadows[1].position.x = targetX
+    } else if (this._models.length === 1) {
+      this._models[0].group.position.x = 0
+      if (this._shadows[0]) this._shadows[0].position.x = 0
+    }
   }
 
   _tick = () => {
