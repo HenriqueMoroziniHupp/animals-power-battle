@@ -109,7 +109,25 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
   .dmg-num { font-size: 15px; }
   .dmg-num.crit { font-size: 20px; }
 
-  .panel { padding: 22px 18px; gap: 12px; }
+  .panel {
+    width: min(380px, 100%);
+    padding: 20px 16px;
+    gap: 12px;
+  }
+  .panel .primary-btn {
+    padding: 11px 20px;
+    font-size: 15px;
+    margin-top: 10px;
+    border-radius: 12px;
+  }
+  .panel .ready-btn {
+    margin-top: 10px;
+  }
+  .controls-hint {
+    font-size: 11px;
+    line-height: 1.45;
+    overflow-wrap: break-word;
+  }
   .gameover-stats span { font-size: 19px; }
 }
 
@@ -152,9 +170,83 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
   .weapon-btn { width: auto; padding: 7px 9px; }
   .weapon-name { display: none; }
 
-  .panel { padding: 16px 18px; gap: 9px; }
-  .game-title { font-size: clamp(24px, 6vh, 34px); }
-  .tagline, .controls-hint { display: none; }
+  .panel {
+    padding: clamp(10px, 2.6vh, 16px) clamp(14px, 3vw, 20px);
+    gap: clamp(5px, 1.3vh, 8px);
+    max-height: calc(100dvh - 16px);
+  }
+  .start-panel {
+    padding: clamp(10px, 2.6vh, 16px) clamp(16px, 3.5vw, 24px);
+    gap: clamp(5px, 1.3vh, 8px);
+  }
+  .game-title {
+    font-size: clamp(20px, 5.2vh, 28px);
+    line-height: 0.95;
+  }
+  .tagline {
+    display: block;
+    font-size: clamp(10.5px, 2.2vh, 12.5px);
+    opacity: 0.8;
+  }
+  .controls-hint {
+    display: block;
+    font-size: clamp(9.5px, 1.9vh, 11px);
+    line-height: 1.35;
+    opacity: 0.72;
+  }
+  .controls-hint b {
+    padding: 1px 5px;
+    font-size: clamp(9px, 1.8vh, 10.5px);
+  }
+
+  /* Redimensionamento dos botões nos modais para caber todos os textos informativos */
+  .panel .primary-btn {
+    padding: clamp(7px, 1.6vh, 11px) clamp(18px, 4vw, 28px);
+    font-size: clamp(12.5px, 2.4vh, 15px);
+    margin-top: clamp(4px, 1vh, 8px);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(126, 200, 80, 0.35);
+  }
+  .panel .ready-btn {
+    margin-top: clamp(4px, 1vh, 8px);
+  }
+  .panel .ghost-btn {
+    padding: clamp(6px, 1.3vh, 9px) clamp(14px, 3vw, 18px);
+    font-size: clamp(11px, 2vh, 13px);
+    border-radius: 9px;
+  }
+  .panel .menu-row {
+    padding: clamp(6px, 1.3vh, 9px) clamp(12px, 2.5vw, 16px);
+    font-size: clamp(11px, 2vh, 13px);
+    border-radius: 9px;
+  }
+  .panel h2 {
+    font-size: clamp(16px, 3.4vh, 20px);
+  }
+  .start-loading {
+    margin-top: clamp(4px, 1vh, 8px);
+    gap: 6px;
+  }
+  .loading-track {
+    height: 8px;
+  }
+  .loading-status {
+    font-size: 11px;
+  }
+  .gameover-stats {
+    gap: 6px;
+    margin: 2px 0;
+  }
+  .gameover-stats div {
+    padding: 6px 4px;
+    border-radius: 9px;
+  }
+  .gameover-stats span {
+    font-size: 17px;
+  }
+  .gameover-stats small {
+    font-size: 9px;
+  }
   .ad-fake { aspect-ratio: 16 / 7; }
 }
 

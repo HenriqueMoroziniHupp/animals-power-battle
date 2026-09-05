@@ -22,6 +22,9 @@
 
 .panel {
   width: min(440px, 100%);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   max-height: calc(100dvh - 24px);
   overflow-y: auto;
   margin: auto;
@@ -122,6 +125,8 @@
   font-size: 12px;
   opacity: 0.66;
   line-height: 1.6;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 .controls-hint b {
   padding: 1px 6px;
@@ -334,6 +339,48 @@
 
 /* Escalonamento proporcional em 16:9 (640x360, 836x470, 1031x580) */
 @media (max-height: 520px) {
+  .panel {
+    padding: 16px 20px;
+    gap: 10px;
+    max-height: calc(100dvh - 18px);
+  }
+  .start-panel {
+    padding: 18px 22px 14px;
+    gap: 10px;
+  }
+  .game-title {
+    font-size: clamp(22px, 5.8vh, 32px);
+    line-height: 0.95;
+  }
+  .tagline {
+    font-size: 12.5px;
+  }
+  .controls-hint {
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+  .panel .primary-btn {
+    padding: 9px 22px;
+    font-size: 14.5px;
+    margin-top: 8px;
+    border-radius: 12px;
+  }
+  .panel .ready-btn {
+    margin-top: 8px;
+  }
+  .panel .ghost-btn {
+    padding: 8px 16px;
+    font-size: 12.5px;
+    border-radius: 10px;
+  }
+  .panel .menu-row {
+    padding: 8px 14px;
+    font-size: 12.5px;
+    border-radius: 10px;
+  }
+  .panel h2 {
+    font-size: 19px;
+  }
   .evo-card {
     width: min(420px, 86vw);
     gap: 5px;
@@ -346,6 +393,62 @@
 }
 
 @media (max-height: 420px) {
+  .panel {
+    padding: 12px 18px;
+    gap: 7px;
+    max-height: calc(100dvh - 14px);
+  }
+  .start-panel {
+    padding: 13px 20px 11px;
+    gap: 7px;
+  }
+  .game-title {
+    font-size: clamp(20px, 5.2vh, 26px);
+    line-height: 0.95;
+  }
+  .tagline {
+    font-size: 11.5px;
+  }
+  .controls-hint {
+    font-size: 10.5px;
+    line-height: 1.35;
+  }
+  .panel .primary-btn {
+    padding: 7px 20px;
+    font-size: 13.5px;
+    margin-top: 6px;
+    border-radius: 10px;
+  }
+  .panel .ready-btn {
+    margin-top: 6px;
+  }
+  .panel .ghost-btn {
+    padding: 6px 14px;
+    font-size: 11.5px;
+    border-radius: 9px;
+  }
+  .panel .menu-row {
+    padding: 6px 12px;
+    font-size: 11.5px;
+    border-radius: 9px;
+  }
+  .panel h2 {
+    font-size: 17px;
+  }
+  .gameover-stats {
+    gap: 6px;
+    margin: 2px 0;
+  }
+  .gameover-stats div {
+    padding: 6px 4px;
+    border-radius: 9px;
+  }
+  .gameover-stats span {
+    font-size: 17px;
+  }
+  .gameover-stats small {
+    font-size: 9px;
+  }
   .evo-card {
     width: min(340px, 84vw);
     gap: 4px;
@@ -358,6 +461,48 @@
 }
 
 @media (max-height: 340px) {
+  .panel {
+    padding: 8px 14px;
+    gap: 5px;
+    max-height: calc(100dvh - 10px);
+  }
+  .start-panel {
+    padding: 9px 16px 8px;
+    gap: 5px;
+  }
+  .game-title {
+    font-size: 18px;
+    line-height: 0.92;
+  }
+  .tagline {
+    font-size: 10.5px;
+  }
+  .controls-hint {
+    font-size: 9.5px;
+    line-height: 1.25;
+  }
+  .panel .primary-btn {
+    padding: 5px 16px;
+    font-size: 12px;
+    margin-top: 3px;
+    border-radius: 8px;
+  }
+  .panel .ready-btn {
+    margin-top: 3px;
+  }
+  .panel .ghost-btn {
+    padding: 5px 12px;
+    font-size: 10.5px;
+    border-radius: 8px;
+  }
+  .panel .menu-row {
+    padding: 5px 10px;
+    font-size: 10.5px;
+    border-radius: 8px;
+  }
+  .panel h2 {
+    font-size: 15px;
+  }
   .evo-card {
     width: min(280px, 82vw);
     gap: 3px;
