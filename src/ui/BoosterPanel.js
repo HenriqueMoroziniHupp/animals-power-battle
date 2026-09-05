@@ -1,3 +1,5 @@
+import { t, onLanguageChange } from '../i18n/index.js'
+
 /**
  * Painel de boosters: dispara o anúncio recompensado e mostra o tempo
  * restante de cada bônus ativo.
@@ -17,15 +19,10 @@ export class BoosterPanel {
       btn.addEventListener('click', () => this._request(kind))
     }
     this._cache = {}
-    // Textos originais, restaurados ao sair do estado permanente "MAX"
-    // (regressão por morte tira o Super Calango).
-    this._orig = {}
-    for (const [kind, btn] of Object.entries(this.btns)) {
-      this._orig[kind] = {
-        sub: btn.querySelector('.booster-sub').textContent,
-        short: btn.querySelector('.booster-title-short').textContent,
-      }
-    }
+
+    onLanguageChange(() => {
+      this._cache = {}
+    })
   }
 
   _request(kind) {
@@ -70,11 +67,11 @@ export class BoosterPanel {
           timerEl.hidden = false
           timerEl.textContent = 'MAX'
           fillEl.style.width = '100%'
-          subEl.textContent = 'DANO MÁXIMO'
-          shortEl.textContent = 'Atk MAX'
+          subEl.textContent = t('boosters.maxDmg')
+          shortEl.textContent = t('boosters.maxShort')
         } else {
-          subEl.textContent = this._orig[kind].sub
-          shortEl.textContent = this._orig[kind].short
+          subEl.textContent = kind === 'attack' ? t('boosters.atkSub') : t('boosters.evoSub')
+          shortEl.textContent = kind === 'attack' ? t('boosters.atkShort') : t('boosters.evoShort')
         }
         // Invalida o cache de segundos para o próximo estado re-renderizar.
         this._cache[kind + 'Secs'] = -1

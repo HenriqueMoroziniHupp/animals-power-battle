@@ -1,5 +1,8 @@
+import { initI18n } from './i18n/index.js'
 import { Game } from './core/Game.js'
 import { DebugTools } from './core/DebugTools.js'
+
+initI18n()
 
 const canvas = document.getElementById('game-canvas')
 const game = new Game(canvas)

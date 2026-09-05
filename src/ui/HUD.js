@@ -1,3 +1,5 @@
+import { t, onLanguageChange } from '../i18n/index.js'
+
 /**
  * Liga o estado do jogo aos elementos do index.html.
  * Só escreve no DOM quando o valor realmente muda — o loop roda a 60fps e
@@ -19,6 +21,9 @@ export class HUD {
       weaponBtns: [...document.querySelectorAll('.weapon-btn')],
     }
     this._cache = {}
+    onLanguageChange(() => {
+      this._cache = {}
+    })
   }
 
   _set(key, value, apply) {
@@ -32,7 +37,9 @@ export class HUD {
     const e = this.el
 
     this._set('level', player.level, (v) => { e.levelNum.textContent = v })
-    this._set('species', player.species.name, (v) => { e.levelSpecies.textContent = v })
+    const spKey = 'species.' + player.species.id
+    const spName = t(spKey)
+    this._set('species', spName !== spKey ? spName : player.species.name, (v) => { e.levelSpecies.textContent = v })
 
     const evoPct = Math.min(100, (player.evo / player.evoNeeded) * 100)
     this._set('evoPct', Math.round(evoPct), (v) => { e.evoFill.style.width = v + '%' })

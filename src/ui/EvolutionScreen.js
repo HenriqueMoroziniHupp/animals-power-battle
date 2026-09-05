@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { t } from '../i18n/index.js'
 
 /**
  * Tela de evolução: mostra em 3D o animal que o jogador acabou de virar e o
@@ -42,12 +43,17 @@ export class EvolutionScreen {
     if (this._resolve) this._close(true)
     this._ensureRenderer()
 
-    this.els.curName.textContent = current.name
+    const curKey = 'species.' + current.id
+    const curName = t(curKey)
+    this.els.curName.textContent = curName !== curKey ? curName : current.name
+
     const isMax = !next
     this.el.classList.toggle('evo-max', isMax)
     if (next) {
-      this.els.nextName.textContent = next.name
-      this.els.nextLevel.textContent = `NÍVEL ${next.minLevel}`
+      const nextKey = 'species.' + next.id
+      const nextName = t(nextKey)
+      this.els.nextName.textContent = nextName !== nextKey ? nextName : next.name
+      this.els.nextLevel.textContent = t('evolution.levelPrefix', { level: next.minLevel })
     }
 
     this._buildModels(current, next)

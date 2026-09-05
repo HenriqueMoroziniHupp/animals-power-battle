@@ -19,13 +19,13 @@
          zoom + fullscreen numa segunda linha. -->
     <div class="hud-topleft">
       <div class="hud-topleft-row">
-        <button id="btn-menu" class="icon-btn" aria-label="Menu">&#9776;</button>
+        <button id="btn-menu" class="icon-btn" aria-label="t('hud.menu')">&#9776;</button>
         <div class="scoreboard">
-          <div class="score-item" title="EVO total">
+          <div class="score-item" title="t('hud.evoTotal')">
             <span class="score-icon">&#129504;</span>
             <span id="score-evo">0</span>
           </div>
-          <div class="score-item" title="Abates">
+          <div class="score-item" title="t('hud.kills')">
             <span class="score-icon">&#128128;</span>
             <span id="score-kills">0</span>
           </div>
@@ -36,9 +36,9 @@
           <button class="booster-btn" id="booster-atk" data-booster="attack">
             <span class="booster-ad">⚔️</span>
             <span class="booster-body">
-              <span class="booster-title">⚔️ ATTACK BOOSTER</span>
-              <span class="booster-sub">+50% DANO</span>
-              <span class="booster-title-short">Atk +50%</span>
+              <span class="booster-title">t('boosters.atkTitle')</span>
+              <span class="booster-sub">t('boosters.atkSub')</span>
+              <span class="booster-title-short">t('boosters.atkShort')</span>
             </span>
             <span class="booster-timer" hidden>00:00</span>
             <span class="booster-fill"></span>
@@ -46,9 +46,9 @@
           <button class="booster-btn" id="booster-evo" data-booster="evo">
             <span class="booster-ad">⭐</span>
             <span class="booster-body">
-              <span class="booster-title">⭐ EVO MINING</span>
-              <span class="booster-sub">2x EVO</span>
-              <span class="booster-title-short">Evo x2</span>
+              <span class="booster-title">t('boosters.evoTitle')</span>
+              <span class="booster-sub">t('boosters.evoSub')</span>
+              <span class="booster-title-short">t('boosters.evoShort')</span>
             </span>
             <span class="booster-timer" hidden>00:00</span>
             <span class="booster-fill"></span>
@@ -63,18 +63,18 @@
           <input
             type="range" id="zoom-range" class="zoom-range"
             min="45" max="85" step="1" value="55"
-            aria-label="Campo de visão"
+            aria-label="t('hud.fov')"
           />
           <span class="zoom-icon" aria-hidden="true">&#128269;&#8722;</span>
         </div>
-        <button id="fullscreen-btn" class="icon-btn mobile-only" aria-label="Tela cheia">⛶</button>
+        <button id="fullscreen-btn" class="icon-btn mobile-only" aria-label="t('hud.fullscreen')">⛶</button>
       </div>
     </div>
 
     <!-- Barra inferior central: nível, EVO, HP, ATK -->
     <div class="hud-bottom">
       <div class="level-box">
-        <span class="level-label">LEVEL</span>
+        <span class="level-label">t('hud.level')</span>
         <span class="level-num" id="level-num">1</span>
         <span class="level-species" id="level-species">Calango</span>
       </div>
@@ -100,12 +100,12 @@
     <div class="weapon-select" id="weapon-select">
       <button class="weapon-btn active" data-attack="laser">
         <span class="weapon-icon">&#128165;</span>
-        <span class="weapon-name">LASER</span>
+        <span class="weapon-name">t('weapons.laser')</span>
         <span class="weapon-key">1</span>
       </button>
       <button class="weapon-btn" data-attack="flame">
         <span class="weapon-icon">&#128293;</span>
-        <span class="weapon-name">CHAMAS</span>
+        <span class="weapon-name">t('weapons.flame')</span>
         <span class="weapon-key">2</span>
       </button>
     </div>
@@ -116,7 +116,7 @@
         <div class="joystick-base"></div>
         <div class="joystick-knob" id="joystick-knob"></div>
       </div>
-      <button class="attack-btn" id="attack-btn" aria-label="Atacar">&#9876;&#65039;</button>
+      <button class="attack-btn" id="attack-btn" aria-label="t('hud.attack')">&#9876;&#65039;</button>
     </div>
 
     <!-- Camada de barras de vida 3D projetadas -->
@@ -130,7 +130,7 @@
   <div class="overlay" id="overlay-start">
     <div class="panel start-panel">
       <h1 class="game-title">ANIMALS<span>POWER</span>BATTLE</h1>
-      <p class="tagline">Cace, evolua, domine a selva.</p>
+      <p class="tagline">t('start.tagline')</p>
       <p class="start-progress" id="start-progress" hidden></p>
 
       <!-- Barra de carregamento inicial -->
@@ -139,85 +139,86 @@
           <div class="loading-fill" id="loading-fill"></div>
         </div>
         <div class="loading-status">
-          <span id="loading-label">Carregando o mundo...</span>
+          <span id="loading-label">t('start.loadingWorld')</span>
           <span id="loading-percent">0%</span>
         </div>
       </div>
 
-      <button class="primary-btn ready-btn hidden" id="btn-play">JOGAR</button>
+      <button class="primary-btn ready-btn hidden" id="btn-play">t('start.play')</button>
       <div class="controls-hint">
-        <p class="desktop-only"><b>WASD</b> mover &middot; <b>Mouse</b> mirar &middot; <b>Espaço/Clique</b> atacar</p>
-        <p class="mobile-only">Joystick para mover &middot; Botão para atacar</p>
+        <p class="desktop-only">t('start.controlsDesktop')</p>
+        <p class="mobile-only">t('start.controlsMobile')</p>
       </div>
     </div>
   </div>
 
   <div class="overlay hidden" id="overlay-menu">
     <div class="panel">
-      <h2>MENU</h2>
-      <button class="menu-row" id="btn-sound">Som: <b id="sound-state">ON</b></button>
-      <button class="menu-row" id="btn-quality">Qualidade: <b id="quality-state">ALTA</b></button>
-      <button class="primary-btn" id="btn-resume">CONTINUAR</button>
-      <button class="ghost-btn" id="btn-restart">REINICIAR PARTIDA</button>
-      <button class="ghost-btn danger-btn" id="btn-reset-progress">APAGAR PROGRESSO</button>
+      <h2>t('menu.title')</h2>
+      <button class="menu-row" id="btn-sound">t('menu.sound') <b id="sound-state">ON</b></button>
+      <button class="menu-row" id="btn-quality">t('menu.quality') <b id="quality-state">ALTA</b></button>
+      <button class="menu-row" id="btn-lang">t('menu.language') <b id="lang-state">PT</b></button>
+      <button class="primary-btn" id="btn-resume">t('menu.resume')</button>
+      <button class="ghost-btn" id="btn-restart">t('menu.restart')</button>
+      <button class="ghost-btn danger-btn" id="btn-reset-progress">t('menu.resetProgress')</button>
     </div>
   </div>
 
   <div class="overlay hidden" id="overlay-gameover">
     <div class="panel">
-      <h2 class="gameover-title">VOCÊ FOI DERROTADO</h2>
+      <h2 class="gameover-title">t('gameover.title')</h2>
       <div class="gameover-stats">
-        <div><span id="go-level">1</span><small>NÍVEL</small></div>
+        <div><span id="go-level">1</span><small>t('hud.statLevel')</small></div>
         <div><span id="go-evo">0</span><small>EVO</small></div>
-        <div><span id="go-kills">0</span><small>ABATES</small></div>
+        <div><span id="go-kills">0</span><small>t('hud.statKills')</small></div>
       </div>
-      <button class="primary-btn" id="btn-retry">TENTAR NOVAMENTE</button>
+      <button class="primary-btn" id="btn-retry">t('gameover.retry')</button>
     </div>
   </div>
 
   <!-- Tela de evolução: quem você virou -> quem vem a seguir (render 3D) -->
   <div class="overlay hidden transition-overlay evo-overlay" id="overlay-evolution">
     <div class="evo-card">
-      <span class="biome-eyebrow">EVOLUÇÃO</span>
-      <h2 class="evo-title">VOCÊ EVOLUIU!</h2>
+      <span class="biome-eyebrow">t('evolution.eyebrow')</span>
+      <h2 class="evo-title">t('evolution.title')</h2>
       <div class="evo-stage">
         <canvas id="evolution-canvas"></canvas>
         <span class="evo-arrow" aria-hidden="true">&#10148;</span>
       </div>
       <div class="evo-labels">
         <div class="evo-slot">
-          <span class="evo-slot-eyebrow">VOCÊ AGORA É</span>
+          <span class="evo-slot-eyebrow">t('evolution.nowYouAre')</span>
           <span class="evo-slot-name evo-slot-name-current" id="evo-current-name">Raposa</span>
         </div>
         <div class="evo-slot evo-slot-next">
-          <span class="evo-slot-eyebrow">PRÓXIMA EVOLUÇÃO</span>
+          <span class="evo-slot-eyebrow">t('evolution.next')</span>
           <span class="evo-slot-name" id="evo-next-name">Lobo</span>
           <span class="evo-slot-level" id="evo-next-level">NÍVEL 10</span>
         </div>
       </div>
-      <p class="evo-max-msg">PODER MÁXIMO! Você chegou ao topo da cadeia alimentar.</p>
-      <button class="primary-btn" id="btn-evo-continue">CONTINUAR</button>
+      <p class="evo-max-msg">t('evolution.maxMsg')</p>
+      <button class="primary-btn" id="btn-evo-continue">t('evolution.continue')</button>
     </div>
   </div>
 
   <div class="overlay hidden transition-overlay biome-overlay" id="overlay-biome">
     <div class="biome-card">
-      <span class="biome-eyebrow">NOVO BIOMA</span>
+      <span class="biome-eyebrow">t('biome.eyebrow')</span>
       <h2 id="biome-name">SAVANA</h2>
       <p id="biome-desc">Predadores maiores. Recompensas maiores.</p>
-      <button class="primary-btn" id="btn-biome-continue">CONTINUAR</button>
+      <button class="primary-btn" id="btn-biome-continue">t('biome.continue')</button>
     </div>
   </div>
 
   <!-- Overlay do anúncio simulado (MockAdapter) -->
   <div class="overlay hidden ad-overlay" id="overlay-ad">
     <div class="ad-panel">
-      <span class="ad-label">ANÚNCIO</span>
+      <span class="ad-label">t('ad.title')</span>
       <div class="ad-fake">
         <div class="ad-spinner"></div>
         <p id="ad-countdown">5</p>
       </div>
-      <button class="ghost-btn" id="btn-skip-ad" hidden>PULAR</button>
+      <button class="ghost-btn" id="btn-skip-ad" hidden>t('ad.skip')</button>
     </div>
   </div>
 
