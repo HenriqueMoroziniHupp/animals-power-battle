@@ -9,6 +9,7 @@ Documentação de como o jogo foi construído: requisitos, decisões e armadilha
 | [03 — Armadilhas](03-armadilhas.md) | **9 bugs reais**, causa raiz e correção |
 | [04 — Gameplay](04-gameplay.md) | Progressão, ataques, mobs, recursos, boosters |
 | [05 — Publicação](05-publicacao.md) | AdManager, SDKs, suporte mobile, pendências |
+| [06 — Internacionalização](06-translations/README.md) | Sistema de tradução i18n, sintaxe inline e walkthrough |
 
 ## Leia isto primeiro
 
