@@ -128,11 +128,23 @@
 
   <!-- ============ OVERLAYS ============ -->
   <div class="overlay" id="overlay-start">
-    <div class="panel">
+    <div class="panel start-panel">
       <h1 class="game-title">POWER<span>ANIMAL</span>BATTLE</h1>
       <p class="tagline">Cace, evolua, domine a selva.</p>
       <p class="start-progress" id="start-progress" hidden></p>
-      <button class="primary-btn" id="btn-play">JOGAR</button>
+
+      <!-- Barra de carregamento inicial -->
+      <div class="start-loading" id="start-loading">
+        <div class="loading-track">
+          <div class="loading-fill" id="loading-fill"></div>
+        </div>
+        <div class="loading-status">
+          <span id="loading-label">Carregando o mundo...</span>
+          <span id="loading-percent">0%</span>
+        </div>
+      </div>
+
+      <button class="primary-btn ready-btn hidden" id="btn-play">JOGAR</button>
       <div class="controls-hint">
         <p class="desktop-only"><b>WASD</b> mover &middot; <b>Mouse</b> mirar &middot; <b>Espaço/Clique</b> atacar</p>
         <p class="mobile-only">Joystick para mover &middot; Botão para atacar</p>
