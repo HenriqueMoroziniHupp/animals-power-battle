@@ -1,7 +1,6 @@
 import { LOCALES } from './locales.js'
 
 const STORAGE_KEY = 'animal_battle_lang'
-const T_REGEX = /t\(['"]([^'"]+)['"]\)/g
 
 let currentLanguage = 'pt'
 const changeListeners = new Set()
@@ -74,6 +73,14 @@ function resolveKey(obj, path) {
   return cur
 }
 
+function hasTranslation(str) {
+  return typeof str === 'string' && (str.includes("t('") || str.includes('t("'))
+}
+
+function applyTranslation(str) {
+  return str.replace(/t\(['"]([^'"]+)['"]\)/g, (_, k) => t(k))
+}
+
 /**
  * Percorre o DOM e traduz todas as ocorrências inline de t('chave').
  * Preserva o template original para permitir alternar idiomas a quente.
@@ -92,12 +99,11 @@ export function translateDOM(root = document.body) {
     // Se o elemento possui apenas um nó filho de texto
     if (el.childNodes.length === 1 && el.firstChild.nodeType === Node.TEXT_NODE) {
       const textNode = el.firstChild
-      if (!el._i18nRaw && T_REGEX.test(textNode.nodeValue)) {
+      if (!el._i18nRaw && hasTranslation(textNode.nodeValue)) {
         el._i18nRaw = textNode.nodeValue
       }
       if (el._i18nRaw) {
-        T_REGEX.lastIndex = 0
-        const replaced = el._i18nRaw.replace(T_REGEX, (_, k) => t(k))
+        const replaced = applyTranslation(el._i18nRaw)
         if (replaced.includes('<') || replaced.includes('&')) {
           el.innerHTML = replaced
         } else {
@@ -108,12 +114,11 @@ export function translateDOM(root = document.body) {
 
     // 3. Traduz atributos (title, aria-label, alt, etc.)
     for (const attr of el.attributes) {
-      if (!attr._i18nRaw && T_REGEX.test(attr.value)) {
+      if (!attr._i18nRaw && hasTranslation(attr.value)) {
         attr._i18nRaw = attr.value
       }
       if (attr._i18nRaw) {
-        T_REGEX.lastIndex = 0
-        attr.value = attr._i18nRaw.replace(T_REGEX, (_, k) => t(k))
+        attr.value = applyTranslation(attr._i18nRaw)
       }
     }
   }
@@ -125,12 +130,11 @@ export function translateDOM(root = document.body) {
     // Pula se já foi traduzido como filho único pelo pai acima
     if (node.parentElement && node.parentElement._i18nRaw) continue
 
-    if (!node._i18nRaw && T_REGEX.test(node.nodeValue)) {
+    if (!node._i18nRaw && hasTranslation(node.nodeValue)) {
       node._i18nRaw = node.nodeValue
     }
     if (node._i18nRaw) {
-      T_REGEX.lastIndex = 0
-      node.nodeValue = node._i18nRaw.replace(T_REGEX, (_, k) => t(k))
+      node.nodeValue = applyTranslation(node._i18nRaw)
     }
   }
 }
