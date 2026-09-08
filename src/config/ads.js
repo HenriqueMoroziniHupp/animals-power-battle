@@ -7,4 +7,4 @@
  * plataformas continuam sendo inicializados normalmente — só a exibição
  * é suprimida. Para reativar, basta voltar para `true`.
  */
-export const ADS_ENABLED = false
+export const ADS_ENABLED = true

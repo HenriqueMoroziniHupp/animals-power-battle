@@ -4,7 +4,7 @@ import { t, getLanguage, setLanguage, onLanguageChange } from '../i18n/index.js'
  * Controla as telas sobrepostas: início, menu, game over e transição de bioma.
  */
 export class Overlays {
-  constructor({ onPlay, onResume, onRestart, onToggleSound, onToggleQuality, onResetProgress }) {
+  constructor({ onPlay, onResume, onRestart, onToggleSound, onToggleQuality, onResetProgress, onPause }) {
     this.el = {
       start: document.getElementById('overlay-start'),
       menu: document.getElementById('overlay-menu'),
@@ -35,7 +35,10 @@ export class Overlays {
     document.getElementById('btn-resume').addEventListener('click', onResume)
     document.getElementById('btn-restart').addEventListener('click', onRestart)
     document.getElementById('btn-retry').addEventListener('click', onRestart)
-    document.getElementById('btn-menu').addEventListener('click', () => this.showMenu())
+    document.getElementById('btn-menu').addEventListener('click', () => {
+      if (onPause) onPause()
+      else this.showMenu()
+    })
     document.getElementById('btn-sound').addEventListener('click', onToggleSound)
     document.getElementById('btn-quality').addEventListener('click', onToggleQuality)
 

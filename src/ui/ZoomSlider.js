@@ -6,8 +6,11 @@ export class ZoomSlider {
   constructor(range, onChange) {
     this.range = range
 
-    const saved = Number(localStorage.getItem(KEY))
-    const initial = saved >= Number(range.min) && saved <= Number(range.max)
+    let saved = NaN
+    try {
+      saved = Number(localStorage.getItem(KEY))
+    } catch {}
+    const initial = Number.isFinite(saved) && saved >= Number(range.min) && saved <= Number(range.max)
       ? saved
       : Number(range.value)
     range.value = String(initial)
@@ -16,7 +19,9 @@ export class ZoomSlider {
     range.addEventListener('input', () => {
       const fov = Number(range.value)
       onChange(fov)
-      localStorage.setItem(KEY, String(fov))
+      try {
+        localStorage.setItem(KEY, String(fov))
+      } catch {}
     })
   }
 }

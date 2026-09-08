@@ -126,6 +126,10 @@ export class Game {
       onToggleSound: () => this.toggleSound(),
       onToggleQuality: () => this.toggleQuality(),
       onResetProgress: () => this.resetProgress(),
+      onPause: () => {
+        this.pause()
+        this.overlays.showMenu()
+      },
     })
     this.overlays.setSoundState(!this.audio.muted)
     this.overlays.setQualityState(this.scene3d.quality)
@@ -161,6 +165,22 @@ export class Game {
       onResume: () => this.resumeFromAd(),
     })
 
+    // Prevenção de rolagem de página no iframe da Poki e atalho ESC
+    window.addEventListener('keydown', (ev) => {
+      if (['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight', ' '].includes(ev.key)) {
+        ev.preventDefault()
+      }
+      if (ev.key === 'Escape') {
+        if (this.state.is(STATE.PLAYING)) {
+          this.pause()
+          this.overlays.showMenu()
+        } else if (this.state.is(STATE.PAUSED)) {
+          this.resume()
+        }
+      }
+    })
+    window.addEventListener('wheel', (ev) => ev.preventDefault(), { passive: false })
+
     // Exposto para diagnostico/testes de mira.
     this.applyAimAssist = applyAimAssist
 
@@ -184,7 +204,9 @@ export class Game {
 
   start() {
     // Mostra na tela inicial em que nível o jogador está retomando.
-    this.overlays.showStart(this.player.level)
+    this.overlays.showStart(this.player.level, () => {
+      AdManager.gameLoadingFinished()
+    })
     this.hud.update(this.player, this.boosters.status())
     this._loop()
   }
@@ -204,6 +226,7 @@ export class Game {
     this.input.setEnabled(false)
     this.currentAttack.stop()
     this.audio.suspend()
+    AdManager.gameplayStop()
   }
 
   resume() {
@@ -212,6 +235,7 @@ export class Game {
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
     this.audio.resume()
+    AdManager.gameplayStart()
   }
 
   pauseForAd() {
@@ -303,6 +327,7 @@ export class Game {
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
     this.audio.resume()
+    AdManager.gameplayStart()
   }
 
   toggleSound() {
@@ -378,6 +403,7 @@ export class Game {
     const trocaBioma = nextBiome && nextBiome.id !== this.biome.id
     if (!e.evolved && !trocaBioma) return
 
+    AdManager.gameplayStop()
     this.state.set(STATE.BIOME_TRANSITION)
     this.input.setEnabled(false)
     this.currentAttack.stop()
@@ -395,6 +421,7 @@ export class Game {
 
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
+    AdManager.gameplayStart()
   }
 
   _rebuildWorld(biome) {

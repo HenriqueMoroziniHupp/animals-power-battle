@@ -25,19 +25,26 @@ class AdManagerImpl {
     this.interstitialCooldown = 45
     this._lastInterstitial = -Infinity
     this._showing = false
+    this._isPlaying = false
   }
 
   async init({ onPause, onResume } = {}) {
     this.onPause = onPause
     this.onResume = onResume
 
-    // Permite forçar um adapter para teste: ?sdk=poki
+    // Permite forçar um adapter para teste: ?sdk=poki ou ?sdk=mock
     const forced = new URLSearchParams(location.search).get('sdk')
 
-    if (forced === 'poki' || PokiAdapter.isAvailable()) this.adapter = new PokiAdapter()
-    else if (forced === 'crazygames' || CrazyGamesAdapter.isAvailable()) this.adapter = new CrazyGamesAdapter()
-    else if (forced === 'youtube' || YouTubePlayablesAdapter.isAvailable()) this.adapter = new YouTubePlayablesAdapter()
-    else this.adapter = new MockAdapter()
+    if (forced === 'mock') this.adapter = new MockAdapter()
+    else if (forced === 'poki' || (forced !== 'crazygames' && forced !== 'youtube' && PokiAdapter.isAvailable())) {
+      this.adapter = new PokiAdapter()
+    } else if (forced === 'crazygames' || CrazyGamesAdapter.isAvailable()) {
+      this.adapter = new CrazyGamesAdapter()
+    } else if (forced === 'youtube' || YouTubePlayablesAdapter.isAvailable()) {
+      this.adapter = new YouTubePlayablesAdapter()
+    } else {
+      this.adapter = new MockAdapter()
+    }
 
     await this.adapter.init()
     return this.adapter.id
@@ -58,6 +65,11 @@ class AdManagerImpl {
     }
     if (this._showing) return
     this._showing = true
+
+    // Interrompe o gameplay ativo antes do anúncio (requisito rígido de QA)
+    const wasPlaying = this._isPlaying
+    if (wasPlaying) this.gameplayStop()
+
     this.onPause?.()
     try {
       const ok = await this.adapter.showRewarded()
@@ -69,12 +81,13 @@ class AdManagerImpl {
     } finally {
       this._showing = false
       this.onResume?.()
+      if (wasPlaying) this.gameplayStart()
     }
   }
 
   /**
    * Interstitial (game over, transição de bioma).
-   * Respeita um cooldown para não irritar o jogador.
+   * Na Poki, a plataforma calibra a taxa de exibição por jogador.
    * @param {() => void} [onComplete]
    */
   async showInterstitialAd(onComplete) {
@@ -82,13 +95,18 @@ class AdManagerImpl {
       onComplete?.()
       return
     }
+    const isPoki = this.adapter?.id === 'poki'
     const now = performance.now() / 1000
-    if (this._showing || now - this._lastInterstitial < this.interstitialCooldown) {
+    if (this._showing || (!isPoki && now - this._lastInterstitial < this.interstitialCooldown)) {
       onComplete?.()
       return
     }
     this._showing = true
     this._lastInterstitial = now
+
+    const wasPlaying = this._isPlaying
+    if (wasPlaying) this.gameplayStop()
+
     this.onPause?.()
     try {
       await this.adapter.showInterstitial()
@@ -97,12 +115,31 @@ class AdManagerImpl {
     } finally {
       this._showing = false
       this.onResume?.()
+      if (wasPlaying) this.gameplayStart()
       onComplete?.()
     }
   }
 
-  gameplayStart() { this.adapter?.gameplayStart?.() }
-  gameplayStop() { this.adapter?.gameplayStop?.() }
+  gameplayStart() {
+    if (this._isPlaying) return
+    this._isPlaying = true
+    this.adapter?.gameplayStart?.()
+  }
+
+  gameplayStop() {
+    if (!this._isPlaying) return
+    this._isPlaying = false
+    this.adapter?.gameplayStop?.()
+  }
+
+  gameLoadingFinished() {
+    this.adapter?.gameLoadingFinished?.()
+  }
+
+  measure(category, name, value) {
+    this.adapter?.measure?.(category, name, value)
+  }
 }
 
 export const AdManager = new AdManagerImpl()
+

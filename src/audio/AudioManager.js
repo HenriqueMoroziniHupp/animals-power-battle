@@ -11,7 +11,11 @@ export class AudioManager {
     /** @type {AudioContext|null} */
     this.ctx = null
     this.master = null
-    this.muted = localStorage.getItem('pab_muted') === '1'
+    try {
+      this.muted = localStorage.getItem('pab_muted') === '1'
+    } catch {
+      this.muted = false
+    }
     this._flameNodes = null
     this._noiseBuffer = null
   }
@@ -37,7 +41,9 @@ export class AudioManager {
 
   setMuted(m) {
     this.muted = m
-    localStorage.setItem('pab_muted', m ? '1' : '0')
+    try {
+      localStorage.setItem('pab_muted', m ? '1' : '0')
+    } catch {}
     if (this.master) {
       this.master.gain.setTargetAtTime(m ? 0 : 0.5, this.ctx.currentTime, 0.02)
     }
