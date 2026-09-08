@@ -16,7 +16,6 @@ export class HUD {
       hpText: document.getElementById('hp-text'),
       atkValue: document.getElementById('atk-value'),
       atkBox: document.getElementById('atk-box'),
-      scoreEvo: document.getElementById('score-evo'),
       scoreKills: document.getElementById('score-kills'),
       weaponBtns: [...document.querySelectorAll('.weapon-btn')],
     }
@@ -56,7 +55,6 @@ export class HUD {
     this._set('atk', atk, (v) => { e.atkValue.textContent = v })
     this._set('atkBoost', !!boosted, (v) => { e.atkBox.classList.toggle('boosted', v) })
 
-    this._set('scoreEvo', Math.floor(player.totalEvo), (v) => { e.scoreEvo.textContent = v })
     this._set('scoreKills', player.kills, (v) => { e.scoreKills.textContent = v })
   }
 
