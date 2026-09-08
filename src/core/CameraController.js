@@ -60,13 +60,16 @@ export class CameraController {
    * @returns {number} o yaw efetivo da câmera (usado pelo movimento do player)
    */
   update(dt, playerPos, inputYaw, opts = {}) {
+    const safeDt = Number.isFinite(dt) && dt > 0 ? dt : 1 / 60
     // Damping exponencial: estável em qualquer framerate.
-    const a = 1 - Math.exp(-this.followK * dt)
+    const a = 1 - Math.exp(-this.followK * safeDt)
 
-    // O input manual é sempre autoridade máxima: aplica o delta do jogador.
-    const inputDelta = inputYaw - (this._lastInputYaw ?? inputYaw)
-    this._lastInputYaw = inputYaw
-    this.yaw += inputDelta
+    const safeInputYaw = Number.isFinite(inputYaw) ? inputYaw : 0
+    const prev = Number.isFinite(this._lastInputYaw) ? this._lastInputYaw : safeInputYaw
+    const inputDelta = safeInputYaw - prev
+    this._lastInputYaw = safeInputYaw
+    if (Number.isFinite(inputDelta)) this.yaw += inputDelta
+    if (!Number.isFinite(this.yaw)) this.yaw = safeInputYaw
 
     // Auto-alinhamento: giro por VELOCIDADE ANGULAR, não perseguindo um
     // ângulo alvo. Isso elimina por construção a singularidade da meia-volta
@@ -74,21 +77,26 @@ export class CameraController {
     //
     // A câmera acompanha levemente o movimento lateral: andando para os lados
     // ela gira junto, devagar; andando reto (frente ou ré) não gira nada.
-    const strafe = opts.strafe ?? 0
+    const strafe = Number.isFinite(opts.strafe) ? opts.strafe : 0
     const canAlign =
       opts.moving === true &&
       (opts.timeSinceLook ?? 99) > this.alignDelay &&
       Math.abs(strafe) > 0.05
     if (canAlign) {
       // Velocidade proporcional ao quanto o jogador pede de lateral.
-      this.yaw -= strafe * this.alignRate * dt
+      this.yaw -= strafe * this.alignRate * safeDt
     }
+    if (!Number.isFinite(this.yaw)) this.yaw = 0
     const yaw = this.yaw
 
-    this.target.copy(playerPos)
+    if (playerPos && Number.isFinite(playerPos.x) && Number.isFinite(playerPos.y) && Number.isFinite(playerPos.z)) {
+      this.target.copy(playerPos)
+    }
     this.target.y += 1.4
 
-    if (this.first) {
+    if (!Number.isFinite(this.distance)) this.distance = this.targetDistance
+
+    if (this.first || !Number.isFinite(this.smoothTarget.x)) {
       this.smoothTarget.copy(this.target)
       this.distance = this.targetDistance
       this.first = false
@@ -108,15 +116,19 @@ export class CameraController {
     // O plano d'água cobre o mapa inteiro; sem este limite, ao chegar na
     // beira de um lago a câmera descia abaixo dele e a tela ficava metade
     // azul (visto em teste).
-    if (this.terrain) {
+    if (this.terrain && Number.isFinite(TMP.x) && Number.isFinite(TMP.z)) {
       const ground = this.terrain.getHeightAt(TMP.x, TMP.z) + 1.6
       const waterTop = (this.terrain.biome?.water?.level ?? -Infinity) + 1.2
       const floor = Math.max(ground, waterTop)
-      if (TMP.y < floor) TMP.y = floor
+      if (Number.isFinite(floor) && TMP.y < floor) TMP.y = floor
     }
 
-    this.camera.position.copy(TMP)
-    this.camera.lookAt(this.smoothTarget)
+    if (Number.isFinite(TMP.x) && Number.isFinite(TMP.y) && Number.isFinite(TMP.z)) {
+      this.camera.position.copy(TMP)
+    }
+    if (Number.isFinite(this.smoothTarget.x) && Number.isFinite(this.smoothTarget.y) && Number.isFinite(this.smoothTarget.z)) {
+      this.camera.lookAt(this.smoothTarget)
+    }
     return yaw
   }
 

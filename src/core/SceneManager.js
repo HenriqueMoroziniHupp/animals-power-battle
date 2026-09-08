@@ -59,6 +59,24 @@ export class SceneManager {
     this.quality = this.isTouch ? 'low' : 'high'
     this.applyQuality(this.quality)
 
+    // Prevenção de perda permanente de contexto WebGL (essencial em mobile e trocas de aba)
+    this._onContextLost = (e) => {
+      e.preventDefault()
+      console.warn('[SceneManager] WebGL context lost - prevenção ativada para permitir restauração.')
+    }
+    this._onContextRestored = () => {
+      console.log('[SceneManager] WebGL context restored - reconfigurando renderizador.')
+      const w = Math.max(1, window.innerWidth)
+      const h = Math.max(1, window.innerHeight)
+      this.renderer.setSize(w, h)
+      this.renderer.shadowMap.needsUpdate = true
+      this.applyQuality(this.quality)
+      this.camera.aspect = w / h
+      this.camera.updateProjectionMatrix()
+    }
+    this.canvas.addEventListener('webglcontextlost', this._onContextLost, false)
+    this.canvas.addEventListener('webglcontextrestored', this._onContextRestored, false)
+
     this._onResize = () => this.resize()
     window.addEventListener('resize', this._onResize)
     window.addEventListener('orientationchange', this._onResize)
@@ -119,6 +137,7 @@ export class SceneManager {
 
   /** Campo de visão (graus): usado pelo slider de zoom no mobile. */
   setFov(fov) {
+    if (!Number.isFinite(fov) || fov <= 0) return
     this.camera.fov = fov
     this.camera.updateProjectionMatrix()
   }
@@ -126,6 +145,7 @@ export class SceneManager {
   resize() {
     const w = window.innerWidth
     const h = window.innerHeight
+    if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) return
     this.camera.aspect = w / h
     this.camera.updateProjectionMatrix()
     this.renderer.setSize(w, h)
@@ -133,10 +153,18 @@ export class SceneManager {
   }
 
   render() {
-    this.renderer.render(this.scene, this.camera)
+    // Evita tentar renderizar em contexto WebGL perdido
+    try {
+      if (this.renderer.getContext()?.isContextLost()) return
+      this.renderer.render(this.scene, this.camera)
+    } catch (err) {
+      console.warn('[SceneManager] Falha no frame de renderização:', err)
+    }
   }
 
   dispose() {
+    this.canvas.removeEventListener('webglcontextlost', this._onContextLost)
+    this.canvas.removeEventListener('webglcontextrestored', this._onContextRestored)
     window.removeEventListener('resize', this._onResize)
     window.removeEventListener('orientationchange', this._onResize)
     this.renderer.dispose()

@@ -194,6 +194,9 @@ export class Game {
         // Salva ANTES de pausar: no mobile a aba pode ser descartada sem aviso.
         this.saves.save(this.player)
         if (this.state.is(STATE.PLAYING)) this.pause()
+      } else {
+        // Ao retornar da aba, garante que câmera e viewport estejam sincronizados
+        this.scene3d.resize()
       }
     })
     // Rede de seguranca para F5 / fechar a aba.
@@ -536,22 +539,36 @@ export class Game {
       }
     }
 
-    if (this.state.isRunning()) this.update(dt)
+    try {
+      if (this.state.isRunning()) this.update(dt)
 
-    // FX e UI continuam animando mesmo pausado (feedback visual).
-    this.explosions.update(dt)
-    this.hitFX.update(dt)
-    this.damageNumbers.update(dt)
+      // FX e UI continuam animando mesmo pausado (feedback visual).
+      this.explosions.update(dt)
+      this.hitFX.update(dt)
+      this.damageNumbers.update(dt)
 
-    // Boosters e HUD seguem fora do PLAYING: o bonus continua correndo no
-    // relogio e o jogador precisa ver o tempo restante mesmo no game over.
-    if (!this.state.isRunning()) {
-      this.boosters.update(dt)
-      this.hud.update(this.player, this.boosters.status())
-      this.boosterPanel.update(this.boosters.status())
+      // Boosters e HUD seguem fora do PLAYING: o bonus continua correndo no
+      // relogio e o jogador precisa ver o tempo restante mesmo no game over.
+      if (!this.state.isRunning()) {
+        this.boosters.update(dt)
+        this.hud.update(this.player, this.boosters.status())
+        this.boosterPanel.update(this.boosters.status())
+      }
+    } catch (err) {
+      if (!this._lastLoopErr || performance.now() - this._lastLoopErr > 3000) {
+        console.error('[Game] Erro no ciclo de atualização:', err)
+        this._lastLoopErr = performance.now()
+      }
     }
 
-    this.scene3d.render()
+    try {
+      this.scene3d.render()
+    } catch (renderErr) {
+      if (!this._lastRenderErr || performance.now() - this._lastRenderErr > 3000) {
+        console.error('[Game] Erro no render 3D:', renderErr)
+        this._lastRenderErr = performance.now()
+      }
+    }
   }
 
   update(dt) {

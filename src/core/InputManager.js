@@ -138,20 +138,26 @@ export class InputManager {
 
       if (e.pointerType === 'mouse' && this.lookPointer === null) {
         // Sem clique: o movimento do mouse ainda gira (mira livre).
-        if (e.movementX) {
-          this.aimYaw -= e.movementX * this.lookSpeed
+        const mx = Number(e.movementX)
+        if (Number.isFinite(mx) && mx !== 0) {
+          this.aimYaw -= mx * this.lookSpeed
           this.timeSinceLook = 0
         }
+        if (!Number.isFinite(this.aimYaw)) this.aimYaw = 0
         return
       }
       if (e.pointerId !== this.lookPointer) return
 
-      const dx = e.clientX - this.lastLookX
-      this.lastLookX = e.clientX
-      if (dx !== 0) {
-        this.aimYaw -= dx * this.lookSpeed
-        this.timeSinceLook = 0
+      const clientX = Number(e.clientX)
+      if (Number.isFinite(clientX) && Number.isFinite(this.lastLookX)) {
+        const dx = clientX - this.lastLookX
+        if (Number.isFinite(dx) && dx !== 0) {
+          this.aimYaw -= dx * this.lookSpeed
+          this.timeSinceLook = 0
+        }
       }
+      this.lastLookX = Number.isFinite(clientX) ? clientX : 0
+      if (!Number.isFinite(this.aimYaw)) this.aimYaw = 0
     })
 
     const endPointer = (e) => {
