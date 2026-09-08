@@ -147,7 +147,8 @@ export class ExplosionFX {
   }
 
   update(dt) {
-    for (const it of [...this.pool.active]) {
+    if (this.pool.active.size === 0) return
+    for (const it of this.pool.active) {
       it.life += dt
       const k = it.life / it.maxLife
       if (k >= 1) { this.pool.release(it); continue }

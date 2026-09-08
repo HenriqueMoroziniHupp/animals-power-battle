@@ -69,9 +69,8 @@ export class LaserAttack {
     player.getForward(DIR)
     applyAimAssist(ORIGIN, DIR, player, this)
 
-    // Alcance nunca maior que o que cabe na tela.
-    const visible = Math.max(12, camera.far * 0.12)
-    const maxRange = Math.min(this.cfg.range, visible)
+    // Alcance total configurado (35 un), limitado apenas pelo plano de corte da câmera.
+    const maxRange = Math.min(this.cfg.range, camera.far)
 
     const hit = this.collision.raymarch(
       ORIGIN, DIR, maxRange,

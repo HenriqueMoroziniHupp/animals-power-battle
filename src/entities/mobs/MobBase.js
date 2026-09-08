@@ -110,13 +110,16 @@ export class Mob extends Entity {
       if (this.aggroTimer <= 0) this.aggroSource = null
     }
 
-    const distToPlayer = Math.hypot(
-      player.position.x - this.position.x,
-      player.position.z - this.position.z,
-    )
+    this._frameCounter = (this._frameCounter ?? 0) + 1
+
+    const dx = player.position.x - this.position.x
+    const dz = player.position.z - this.position.z
+    const distSq = dx * dx + dz * dz
+    const isDistant = distSq > 48 * 48
+    const distToPlayer = Math.sqrt(distSq)
 
     this._think(dt, player, distToPlayer, combat)
-    this._move(dt)
+    this._move(dt, isDistant)
     this.updateFlash(dt)
     this._syncMesh()
   }
@@ -182,7 +185,7 @@ export class Mob extends Entity {
     return provoked && dist < this.visionRadius * 1.8
   }
 
-  _move(dt) {
+  _move(dt, isDistant = false) {
     let tx = null
     let tz = null
     let speed = this.speed
@@ -224,7 +227,9 @@ export class Mob extends Entity {
 
     this.terrain.clampToWorld(this.position, 10)
     this.collision.refresh(this)
-    this.collision.resolve(this)
+    if (!isDistant || this._frameCounter % 3 === 0) {
+      this.collision.resolve(this)
+    }
   }
 
   /** O Game injeta a posição do player antes do update (evita acoplamento). */

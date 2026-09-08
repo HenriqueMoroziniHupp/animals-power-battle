@@ -77,7 +77,8 @@ export class FireSystem {
   }
 
   update(dt, t) {
-    for (const prop of [...this.burning]) {
+    if (this.burning.size === 0) return
+    for (const prop of this.burning) {
       if (prop.dead) { this._extinguish(prop); continue }
 
       prop.burnTime += dt

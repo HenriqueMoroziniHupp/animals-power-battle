@@ -9,22 +9,19 @@ import * as THREE from 'three'
  */
 
 const CELL = 8
+const TMP_RAY_POINT = new THREE.Vector3()
 
 export class CollisionWorld {
   constructor(terrain) {
     this.terrain = terrain
-    /** @type {Map<string, Set<object>>} célula -> corpos */
+    /** @type {Map<number, Set<object>>} célula (hash int) -> corpos */
     this.cells = new Map()
     /** @type {Set<object>} todos os corpos registrados */
     this.bodies = new Set()
   }
 
   _key(cx, cz) {
-    return `${cx},${cz}`
-  }
-
-  _cellOf(x, z) {
-    return [Math.floor(x / CELL), Math.floor(z / CELL)]
+    return ((cx + 1000) << 12) | (cz + 1000)
   }
 
   /**
@@ -52,8 +49,9 @@ export class CollisionWorld {
 
   /** Reposiciona o corpo no grid se ele mudou de célula. */
   refresh(body) {
-    const [cx, cz] = this._cellOf(body.position.x, body.position.z)
-    const key = this._key(cx, cz)
+    const cx = Math.floor(body.position.x / CELL)
+    const cz = Math.floor(body.position.z / CELL)
+    const key = ((cx + 1000) << 12) | (cz + 1000)
     if (key === body._cellKey) return
 
     if (body._cellKey != null) {
@@ -73,24 +71,29 @@ export class CollisionWorld {
   }
 
   /**
-   * Corpos nas 9 células ao redor de (x,z), dentro de `range`.
+   * Corpos nas células ao redor de (x,z), dentro de `range`.
    * @param {(body:object)=>boolean} [filter]
    * @returns {object[]}
    */
   query(x, z, range, filter = null) {
     const out = []
-    const [cx, cz] = this._cellOf(x, z)
+    const cx = Math.floor(x / CELL)
+    const cz = Math.floor(z / CELL)
     const span = Math.max(1, Math.ceil(range / CELL))
 
     for (let dz = -span; dz <= span; dz++) {
+      const zOffset = cz + dz + 1000
       for (let dx = -span; dx <= span; dx++) {
-        const set = this.cells.get(this._key(cx + dx, cz + dz))
+        const key = ((cx + dx + 1000) << 12) | zOffset
+        const set = this.cells.get(key)
         if (!set) continue
         for (const b of set) {
           if (b.dead) continue
           if (filter && !filter(b)) continue
-          const d = Math.hypot(b.position.x - x, b.position.z - z)
-          if (d <= range + b.radius) out.push(b)
+          const dxPos = b.position.x - x
+          const dzPos = b.position.z - z
+          const maxR = range + b.radius
+          if (dxPos * dxPos + dzPos * dzPos <= maxR * maxR) out.push(b)
         }
       }
     }
@@ -114,9 +117,10 @@ export class CollisionWorld {
       const dx = body.position.x - other.position.x
       const dz = body.position.z - other.position.z
       const minDist = body.radius + other.radius
-      let d = Math.hypot(dx, dz)
+      const d2 = dx * dx + dz * dz
 
-      if (d >= minDist) continue
+      if (d2 >= minDist * minDist) continue
+      let d = Math.sqrt(d2)
 
       // Degenerado (centros coincidentes): empurra numa direção qualquer.
       if (d < 1e-4) {
@@ -150,7 +154,7 @@ export class CollisionWorld {
    */
   raymarch(origin, dir, maxDist, filter = null) {
     const step = 0.5
-    const point = new THREE.Vector3()
+    const point = TMP_RAY_POINT
     const steps = Math.ceil(maxDist / step)
 
     for (let i = 0; i <= steps; i++) {
@@ -167,21 +171,24 @@ export class CollisionWorld {
       for (const b of near) {
         const dx = point.x - b.position.x
         const dz = point.z - b.position.z
-        const dy = point.y - (b.position.y + (b.hitHeight ?? b.radius))
-        // Cápsula: generoso em Y, preciso em XZ com leve tolerância de raio.
-        if (Math.hypot(dx, dz) <= (b.radius + 0.15) && Math.abs(dy) <= (b.hitHeight ?? b.radius) + 1.2) {
-          return { body: b, point, distance: dist, hitTerrain: false }
+        const maxHoriz = b.radius + 0.15
+        if (dx * dx + dz * dz <= maxHoriz * maxHoriz) {
+          const dy = point.y - (b.position.y + (b.hitHeight ?? b.radius))
+          // Cápsula: generoso em Y, preciso em XZ com leve tolerância de raio.
+          if (Math.abs(dy) <= (b.hitHeight ?? b.radius) + 1.2) {
+            return { body: b, point: point.clone(), distance: dist, hitTerrain: false }
+          }
         }
       }
 
       // Se bateu no chão e não havia nenhum corpo nesse ponto:
       if (hitGround) {
-        return { body: null, point, distance: dist, hitTerrain: true }
+        return { body: null, point: point.clone(), distance: dist, hitTerrain: true }
       }
     }
 
     point.copy(dir).multiplyScalar(maxDist).add(origin)
-    return { body: null, point, distance: maxDist, hitTerrain: false }
+    return { body: null, point: point.clone(), distance: maxDist, hitTerrain: false }
   }
 
   clear() {

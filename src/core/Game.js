@@ -188,17 +188,31 @@ export class Game {
     this._raf = null
     this._t = 0
     this._spawnTimer = 0
+    this._needsRender = true
+    this._lastFrameTime = 0
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         // Salva ANTES de pausar: no mobile a aba pode ser descartada sem aviso.
         this.saves.save(this.player)
         if (this.state.is(STATE.PLAYING)) this.pause()
+        // Suspende o rAF completamente em abas em segundo plano: 0% de CPU
+        if (this._raf) {
+          cancelAnimationFrame(this._raf)
+          this._raf = null
+        }
       } else {
         // Ao retornar da aba, garante que câmera e viewport estejam sincronizados
         this.scene3d.resize()
+        this._needsRender = true
+        this.clock.getDelta() // descarta delta acumulado fora da aba
+        this._lastFrameTime = performance.now()
+        if (!this._raf) {
+          this._loop()
+        }
       }
     })
+    window.addEventListener('resize', () => { this._needsRender = true })
     // Rede de seguranca para F5 / fechar a aba.
     window.addEventListener('pagehide', () => this.saves.save(this.player))
   }
@@ -211,6 +225,7 @@ export class Game {
       AdManager.gameLoadingFinished()
     })
     this.hud.update(this.player, this.boosters.status())
+    this._needsRender = true
     this._loop()
   }
 
@@ -220,6 +235,7 @@ export class Game {
     this.overlays.hideStart()
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
+    this._needsRender = true
     AdManager.gameplayStart()
   }
 
@@ -229,6 +245,7 @@ export class Game {
     this.input.setEnabled(false)
     this.currentAttack.stop()
     this.audio.suspend()
+    this._needsRender = true
     AdManager.gameplayStop()
   }
 
@@ -238,6 +255,7 @@ export class Game {
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
     this.audio.resume()
+    this._needsRender = true
     AdManager.gameplayStart()
   }
 
@@ -247,10 +265,12 @@ export class Game {
     this.input.setEnabled(false)
     this.currentAttack.stop()
     this.audio.suspend()
+    this._needsRender = true
   }
 
   resumeFromAd() {
     this.audio.resume()
+    this._needsRender = true
     if (this._stateBeforeAd === STATE.PLAYING) {
       this.state.set(STATE.PLAYING)
       this.input.setEnabled(true)
@@ -275,6 +295,7 @@ export class Game {
     this.state.set(STATE.GAMEOVER)
     this.input.setEnabled(false)
     this.currentAttack.stop()
+    this._needsRender = true
     AdManager.gameplayStop()
     this.overlays.showGameOver(this.player)
     AdManager.showInterstitialAd()
@@ -519,6 +540,15 @@ export class Game {
 
   _loop = () => {
     this._raf = requestAnimationFrame(this._loop)
+
+    // Limitação de taxa de quadros para telas de alta frequência (120Hz/144Hz como Mac ProMotion):
+    // Usamos 12ms como limiar para que telas de 60Hz (~16.6ms) nunca percam quadros por jitter,
+    // enquanto telas de 120Hz (~8.3ms) são limitadas perfeitamente em 60 FPS economizando 50% de CPU/bateria.
+    const now = performance.now()
+    const elapsed = now - (this._lastFrameTime ?? 0)
+    if (elapsed < 12) return
+    this._lastFrameTime = now
+
     const rawDt = this.clock.getDelta()
     const dt = Math.min(rawDt, 1 / 20)
     this._t += dt
@@ -539,20 +569,25 @@ export class Game {
       }
     }
 
-    try {
-      if (this.state.isRunning()) this.update(dt)
+    const isRunning = this.state.isRunning()
 
-      // FX e UI continuam animando mesmo pausado (feedback visual).
+    try {
+      if (isRunning) this.update(dt)
+
+      // FX sempre atualizam (possuem retorno imediato O(1) quando vazios)
       this.explosions.update(dt)
       this.hitFX.update(dt)
       this.damageNumbers.update(dt)
 
-      // Boosters e HUD seguem fora do PLAYING: o bonus continua correndo no
-      // relogio e o jogador precisa ver o tempo restante mesmo no game over.
-      if (!this.state.isRunning()) {
-        this.boosters.update(dt)
-        this.hud.update(this.player, this.boosters.status())
-        this.boosterPanel.update(this.boosters.status())
+      // Boosters e HUD seguem fora do PLAYING, atualizados de forma leve (5x/s)
+      if (!isRunning) {
+        this._uiThrottle = (this._uiThrottle ?? 0) - dt
+        if (this._uiThrottle <= 0) {
+          this._uiThrottle = 0.2
+          this.boosters.update(0.2)
+          this.hud.update(this.player, this.boosters.status())
+          this.boosterPanel.update(this.boosters.status())
+        }
       }
     } catch (err) {
       if (!this._lastLoopErr || performance.now() - this._lastLoopErr > 3000) {
@@ -561,12 +596,21 @@ export class Game {
       }
     }
 
-    try {
-      this.scene3d.render()
-    } catch (renderErr) {
-      if (!this._lastRenderErr || performance.now() - this._lastRenderErr > 3000) {
-        console.error('[Game] Erro no render 3D:', renderErr)
-        this._lastRenderErr = performance.now()
+    const hasActiveFX =
+      this.explosions.pool.activeCount > 0 ||
+      this.hitFX.pool.activeCount > 0 ||
+      this.damageNumbers.pool.activeCount > 0
+
+    // Renderiza apenas quando em gameplay, quando há efeitos ativos ou quando um render estático foi solicitado.
+    if (isRunning || this._needsRender || hasActiveFX) {
+      try {
+        this.scene3d.render()
+        this._needsRender = false
+      } catch (renderErr) {
+        if (!this._lastRenderErr || performance.now() - this._lastRenderErr > 3000) {
+          console.error('[Game] Erro no render 3D:', renderErr)
+          this._lastRenderErr = performance.now()
+        }
       }
     }
   }
@@ -589,18 +633,6 @@ export class Game {
     /**
      * Auto-alinhamento da câmera — o alvo é o EIXO LATERAL do input, não a
      * direção de movimento.
-     *
-     * Por que NÃO perseguir a direção de movimento:
-     *  - Andando de ré (S) a correção é exatamente 180°: os dois sentidos de
-     *    giro empatam, o sinal alterna a cada frame e a tela TREME sem nunca
-     *    virar (bug reportado; reproduzido: yaw oscilando 0.0000 / -0.1131).
-     *  - Mesmo resolvido o tremor, uma cambalhota de 180° ao andar de ré é
-     *    desorientador.
-     *
-     * O que fazemos: a câmera gira em resposta ao componente LATERAL do input
-     * (A/D e diagonais), suavemente. Andar reto (W ou S puro) não gira nada —
-     * sem tremor e sem cambalhota. Como o boneco vira para a direção do
-     * movimento, andando de ré ele fica de frente para o que vem pela frente.
      */
     const camYaw = this.camera.update(dt, this.player.position, this.input.aimYaw, {
       strafe: mv.x,
@@ -635,6 +667,20 @@ export class Game {
     if (this._craterFlush <= 0) {
       this.terrain.flushCraters()
       this._craterFlush = 0.25
+    }
+
+    // Garante que todos os props do mapa completo estejam visíveis (sem corte por distância)
+    if (!this._propsFullyRendered) {
+      this._propsFullyRendered = true
+      const props = this.world?.props
+      if (props) {
+        for (let i = 0; i < props.length; i++) {
+          const p = props[i]
+          if (!p.dead || p.isBurnt) {
+            if (p.mesh) p.mesh.visible = true
+          }
+        }
+      }
     }
 
     // UI.

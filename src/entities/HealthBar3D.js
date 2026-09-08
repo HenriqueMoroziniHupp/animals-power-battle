@@ -9,7 +9,7 @@ const TMP = new THREE.Vector3()
  * (as mais próximas), para não causar thrash de layout com dezenas de mobs.
  */
 export class HealthBarManager {
-  constructor(layerEl, camera, maxBars = 25, maxDistance = 55) {
+  constructor(layerEl, camera, maxBars = 20, maxDistance = 55) {
     this.layer = layerEl
     this.camera = camera
     this.maxBars = maxBars
@@ -25,7 +25,13 @@ export class HealthBarManager {
       this.layer.appendChild(el)
       this.pool.push(el)
     }
-    this._candidates = []
+
+    // Pool fixo de candidatos para evitar criar objetos a cada frame
+    this._candidatePool = []
+    for (let i = 0; i < 60; i++) {
+      this._candidatePool.push({ e: null, d: 0 })
+    }
+    this._activeCandidates = []
   }
 
   /**
@@ -36,20 +42,31 @@ export class HealthBarManager {
     const cam = this.camera
     const w = window.innerWidth
     const h = window.innerHeight
+    const maxDistSq = this.maxDistance * this.maxDistance
 
-    // Seleciona os mais próximos dentro do alcance.
-    this._candidates.length = 0
-    for (const e of entities) {
+    // Seleciona os mais próximos dentro do alcance reaproveitando objetos
+    this._activeCandidates.length = 0
+    let poolIdx = 0
+    for (let i = 0; i < entities.length; i++) {
+      const e = entities[i]
       if (e.dead) continue
-      const d = Math.hypot(e.position.x - focus.x, e.position.z - focus.z)
-      if (d > this.maxDistance) continue
-      this._candidates.push({ e, d })
-    }
-    this._candidates.sort((a, b) => a.d - b.d)
+      const dx = e.position.x - focus.x
+      const dz = e.position.z - focus.z
+      const d2 = dx * dx + dz * dz
+      if (d2 > maxDistSq) continue
 
-    const n = Math.min(this._candidates.length, this.maxBars)
+      const item = this._candidatePool[poolIdx++]
+      if (item) {
+        item.e = e
+        item.d = d2
+        this._activeCandidates.push(item)
+      }
+    }
+    this._activeCandidates.sort((a, b) => a.d - b.d)
+
+    const n = Math.min(this._activeCandidates.length, this.maxBars)
     for (let i = 0; i < n; i++) {
-      const { e } = this._candidates[i]
+      const { e } = this._activeCandidates[i]
       const el = this.pool[i]
 
       TMP.set(e.position.x, e.position.y + (e.hitHeight ?? 1) * 2.1 + 0.6, e.position.z)
@@ -57,22 +74,25 @@ export class HealthBarManager {
 
       // Atrás da câmera ou fora da tela: esconde.
       if (TMP.z > 1 || TMP.x < -1.2 || TMP.x > 1.2 || TMP.y < -1.2 || TMP.y > 1.2) {
-        el.style.display = 'none'
+        if (el.style.display !== 'none') el.style.display = 'none'
         continue
       }
 
-      const sx = (TMP.x * 0.5 + 0.5) * w
-      const sy = (-TMP.y * 0.5 + 0.5) * h
+      const sx = Math.round((TMP.x * 0.5 + 0.5) * w)
+      const sy = Math.round((-TMP.y * 0.5 + 0.5) * h)
 
-      // Zona morta no topo: o placar e o botao de menu ficam ali e as barras
-      // de vida passavam por cima deles (visto em 360x640).
+      // Zona morta no topo: placar e botão de menu
       if (sy < 62) {
-        el.style.display = 'none'
+        if (el.style.display !== 'none') el.style.display = 'none'
         continue
       }
 
-      el.style.display = 'block'
-      el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0)`
+      if (el.style.display !== 'block') el.style.display = 'block'
+      if (el._lastSx !== sx || el._lastSy !== sy) {
+        el._lastSx = sx
+        el._lastSy = sy
+        el.style.transform = `translate3d(${sx}px, ${sy}px, 0)`
+      }
 
       // Só toca o DOM quando o valor muda de verdade.
       if (el._name !== e.name) {

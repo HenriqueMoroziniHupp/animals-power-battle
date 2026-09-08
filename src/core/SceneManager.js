@@ -11,7 +11,7 @@ export class SceneManager {
     this.renderer = new THREE.WebGLRenderer({
       canvas,
       antialias: true,
-      powerPreference: 'high-performance',
+      powerPreference: 'default',
       stencil: false,
     })
     this.renderer.setSize(window.innerWidth, window.innerHeight)
@@ -94,12 +94,12 @@ export class SceneManager {
   }
 
   /**
-   * 'high' = pixelRatio até 2 e shadow map 1024.
-   * 'low'  = pixelRatio até 1.5 e shadow map 512 (mobile).
+   * 'high' = pixelRatio até 1.5 e shadow map 1024.
+   * 'low'  = pixelRatio até 1.0 e shadow map 512 (mobile).
    */
   applyQuality(quality) {
     this.quality = quality
-    const maxDpr = quality === 'high' ? 2 : 1.5
+    const maxDpr = quality === 'high' ? 1.5 : 1.0
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxDpr))
 
     const size = quality === 'high' ? 1024 : 512

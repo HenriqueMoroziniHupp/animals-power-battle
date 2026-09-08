@@ -51,10 +51,11 @@ export class DamageNumbers {
   }
 
   update(dt) {
+    if (this.pool.active.size === 0) return
     const w = window.innerWidth
     const h = window.innerHeight
 
-    for (const item of [...this.pool.active]) {
+    for (const item of this.pool.active) {
       item.life += dt
       if (item.life >= item.maxLife) {
         this.pool.release(item)
