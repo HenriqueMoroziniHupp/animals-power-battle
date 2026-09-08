@@ -153,27 +153,30 @@ export class CollisionWorld {
     const point = new THREE.Vector3()
     const steps = Math.ceil(maxDist / step)
 
-    for (let i = 1; i <= steps; i++) {
+    for (let i = 0; i <= steps; i++) {
       const dist = Math.min(i * step, maxDist)
       point.copy(dir).multiplyScalar(dist).add(origin)
 
-      // Bateu no chão?
       const groundY = this.terrain.getHeightAt(point.x, point.z)
-      if (point.y <= groundY) {
-        point.y = groundY
-        return { body: null, point, distance: dist, hitTerrain: true }
-      }
+      const hitGround = point.y <= groundY
+      if (hitGround) point.y = groundY
 
-      // Bateu em alguém?
+      // Bateu em alguém? (Checado antes do chão para que inimigos baixos
+      // sobre o solo recebam dano direto em vez de impacto de terreno).
       const near = this.query(point.x, point.z, step + 2.5, filter)
       for (const b of near) {
         const dx = point.x - b.position.x
         const dz = point.z - b.position.z
         const dy = point.y - (b.position.y + (b.hitHeight ?? b.radius))
-        // Cápsula grosseira: generoso em Y, preciso em XZ.
-        if (Math.hypot(dx, dz) <= b.radius && Math.abs(dy) <= (b.hitHeight ?? b.radius) + 1.2) {
+        // Cápsula: generoso em Y, preciso em XZ com leve tolerância de raio.
+        if (Math.hypot(dx, dz) <= (b.radius + 0.15) && Math.abs(dy) <= (b.hitHeight ?? b.radius) + 1.2) {
           return { body: b, point, distance: dist, hitTerrain: false }
         }
+      }
+
+      // Se bateu no chão e não havia nenhum corpo nesse ponto:
+      if (hitGround) {
+        return { body: null, point, distance: dist, hitTerrain: true }
       }
     }
 

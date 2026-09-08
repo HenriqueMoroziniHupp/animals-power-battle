@@ -219,3 +219,20 @@ Verificado com um único mob e sem props (isolando a distância):
 > Ao testar mira, isole: outro mob mais próximo rouba o alvo (o auxílio escolhe
 > o mais perto, por design) e props no caminho bloqueiam o raio — os dois geram
 > falso negativo.
+
+---
+
+## 13. Auxílio de mira e detecção de laser a curta distância (Point-Blank / Melee)
+
+**Sintoma:** Jogadores em combate próximo não conseguiam acertar o laser em mobs colados
+(especialmente coelhos e capivaras mordendo o jogador). Era necessário estar milimetricamente
+alinhado ao centro do inimigo; caso contrário, o tiro saía para o nada ou atingia o chão.
+
+**Causas:**
+1. **Origem da mira:** O ponto do focinho (`muzzle`) fica a `1.6 * scale` à frente do centro do jogador. Mobs em combate corpo a corpo ficam entre o centro e o focinho. Medir o cone a partir do `muzzle` fazia com que o mob ficasse "atrás" da origem (`dot <= 0`) ou com ângulo aparente > 60°, descartando o auxílio.
+2. **Raio físico ignorado:** Testar apenas o ponto central `e.position` contra o cone rejeitava alvos cujo corpo ocupava grande parte da visão a curta distância.
+3. **Ordem no `raymarch`:** O teste de impacto no solo vinha antes do teste de corpos sólidos. Como o muzzle fica a ~1.2m de altura e atira para baixo em mobs pequenos no chão, o raio tocava o solo no pé do mob e retornava `hitTerrain: true`, ignorando o dano direto.
+
+**Correção:**
+- `aimAssist.js`: Medir distância e cone a partir de `player.position`. Descontar a largura do corpo do alvo (`lat - radius * 0.75`). Adicionar bônus angular para combate próximo (< 5 un). Se o alvo estiver antes do muzzle, recuar a origem para entre o peito e o alvo (`safeForward`).
+- `CollisionWorld.js`: No `raymarch`, checar corpos antes de decretar impacto no solo, e iniciar loop em `dist = 0`.

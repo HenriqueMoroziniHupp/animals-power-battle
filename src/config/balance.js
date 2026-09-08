@@ -130,7 +130,7 @@ export const ATTACKS = {
       /** A partir desta distância o auxílio é mínimo (e some no `range`). */
       farDist: 26,
       /** Meio-ângulo do cone (graus) perto e longe. */
-      nearAngle: 30,
+      nearAngle: 34,
       farAngle: 7,
       /** Fração da correção aplicada perto e longe (1 = trava no alvo). */
       nearStrength: 1,
