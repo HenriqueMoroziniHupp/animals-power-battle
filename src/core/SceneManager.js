@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { getDefaultFov } from '../ui/ZoomSlider.js'
 
 /**
  * Dono do renderer, da cena, da câmera e das luzes.
@@ -24,7 +25,7 @@ export class SceneManager {
 
     this.scene = new THREE.Scene()
 
-    this.baseFov = 80
+    this.baseFov = getDefaultFov()
     this.camera = new THREE.PerspectiveCamera(
       this.baseFov,
       window.innerWidth / window.innerHeight,
@@ -138,6 +139,7 @@ export class SceneManager {
   /** Campo de visão (graus): usado pelo slider de zoom no mobile. */
   setFov(fov) {
     if (!Number.isFinite(fov) || fov <= 0) return
+    this.baseFov = fov
     this.camera.fov = fov
     this.camera.updateProjectionMatrix()
   }
