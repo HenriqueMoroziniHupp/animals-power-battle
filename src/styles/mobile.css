@@ -2,70 +2,93 @@
    A troca desktop/mobile é feita por `pointer: coarse` + a classe
    `.is-touch` aplicada no <body> pelo InputManager. */
 
-.mobile-only { display: none; }
-.desktop-only { display: block; }
+.mobile-only {
+  display: none;
+}
 
-body.is-touch .mobile-only { display: block; }
-body.is-touch .desktop-only { display: none; }
-body.is-touch .weapon-key { display: none; }
+.desktop-only {
+  display: block;
+}
 
-/* No mobile (toque OU tela estreita), os boosters usam texto abreviado
-   numa linha só para caber ao lado do placar */
-body.is-touch .booster-btn {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  align-items: center;
-  align-content: center;
-  justify-content: start;
-  column-gap: var(--booster-gap);
-  row-gap: 0;
-  height: var(--hud-top-h);
-  padding-block: 0;
+body.is-touch .mobile-only {
+  display: block;
 }
-body.is-touch .booster-title,
-body.is-touch .booster-sub { display: none; }
-body.is-touch .booster-title-short { display: block; }
-body.is-touch .booster-ad { grid-row: 1 / 3; }
-body.is-touch .booster-timer { grid-column: 2; grid-row: 2; margin-left: 0; line-height: 1.1; }
-/* Sem timer visível o botão vira uma linha só: o título fica centralizado
-   com o ícone em vez de ficar preso à linha de cima da grade. */
-body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) {
-  grid-template-rows: auto;
+
+body.is-touch .desktop-only {
+  display: none;
 }
-body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
-  grid-row: 1;
+
+body.is-touch .weapon-key {
+  display: none;
 }
+
+/* No mobile, os boosters mantêm o layout vertical com SVG responsivo */
+body.is-touch .booster-panel {
+  gap: 12px;
+}
+
+body.is-touch .booster-graphic {
+  width: 54px;
+  height: 54px;
+}
+
+body.is-touch .booster-label {
+  font-size: 9px;
+}
+
+body.is-touch .booster-ad-badge {
+  width: 22px;
+  height: 20px;
+}
+
 @media (max-width: 860px) {
-  .booster-btn {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    grid-template-rows: auto auto;
-    align-items: center;
-    align-content: center;
-    justify-content: start;
-    column-gap: var(--booster-gap);
-    row-gap: 0;
-    height: var(--hud-top-h);
-    padding-block: 0;
+  .hud-topleft-row {
+    gap: 8px;
   }
-  .booster-title,
-  .booster-sub { display: none; }
-  .booster-title-short { display: block; }
-  .booster-ad { grid-row: 1 / 3; }
-  .booster-timer { grid-column: 2; grid-row: 2; margin-left: 0; line-height: 1.1; }
-  .booster-btn:not(:has(.booster-timer:not([hidden]))) { grid-template-rows: auto; }
-  .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad { grid-row: 1; }
+
+  .zoom-slider {
+    padding: 0 8px;
+  }
+
+  .booster-panel {
+    gap: 12px;
+  }
+
+  .booster-graphic {
+    width: 54px;
+    height: 54px;
+  }
+
+  .booster-label {
+    font-size: 9px;
+  }
+
+  .booster-ad-badge {
+    width: 22px;
+    height: 20px;
+  }
 }
 
-/* Telas médias: encolhe a barra inferior e os boosters */
+/* Telas médias: encolhe a barra inferior */
 @media (max-width: 860px) {
-  .booster-btn { padding: 0 10px; }
-  .booster-title-short { font-size: 11px; }
-  .hud-bottom { gap: 8px; padding: 9px 10px; }
-  .level-box { min-width: 92px; padding: 5px 9px; }
-  .level-num { font-size: 18px; }
-  .weapon-btn { width: 118px; padding: 8px 10px; }
+  .hud-bottom {
+    gap: 8px;
+    padding: 9px 10px;
+  }
+
+  .level-box {
+    min-width: 92px;
+    padding: 5px 9px;
+  }
+
+  .level-num {
+    font-size: 18px;
+  }
+
+  .weapon-btn {
+    width: 118px;
+    padding: 8px 10px;
+  }
 }
 
 /* Telas pequenas (ex.: 360x640) */
@@ -76,84 +99,224 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
     padding: 8px 9px;
     border-radius: 14px;
   }
-  .level-box { min-width: 76px; padding: 5px 8px; }
-  .level-label { font-size: 9px; }
-  .level-num { font-size: 16px; }
-  .level-species { font-size: 10.5px; max-width: 72px; }
-  .bar { height: 17px; }
-  .bar-text { font-size: 10px; }
-  .atk-box { padding: 6px 9px; }
-  .atk-value { font-size: 15px; }
-  .atk-icon { font-size: 13px; }
 
-  .score-item { padding: 0 9px; font-size: 13px; }
-  .icon-btn { font-size: 19px; }
+  .level-box {
+    min-width: 76px;
+    padding: 5px 8px;
+  }
 
-  /* Boosters encolhem mas mantêm o texto do bônus visível */
-  .booster-btn { width: auto; padding: 0 9px; }
-  .booster-ad { width: 24px; height: 24px; font-size: 13px; }
-  .booster-title-short { font-size: 10px; }
-  .booster-timer { font-size: 11px; }
+  .level-label {
+    font-size: 9px;
+  }
+
+  .level-num {
+    font-size: 16px;
+  }
+
+  .level-species {
+    font-size: 10.5px;
+    max-width: 72px;
+  }
+
+  .bar {
+    height: 17px;
+  }
+
+  .bar-text {
+    font-size: 10px;
+  }
+
+  .atk-box {
+    padding: 6px 9px;
+  }
+
+  .atk-value {
+    font-size: 15px;
+  }
+
+  .atk-icon {
+    font-size: 13px;
+  }
+
+  .score-item {
+    padding: 0 9px;
+    font-size: 13px;
+  }
+
+  .icon-btn {
+    font-size: 19px;
+  }
+
+  /* Linha 1 e 2 no mobile estreito */
+  .hud-topleft-row {
+    gap: 6px;
+  }
+
+  .zoom-slider {
+    padding: 0 6px;
+  }
+
+  .booster-panel {
+    gap: 10px;
+  }
+
+  .booster-graphic {
+    width: 48px;
+    height: 48px;
+  }
+
+  .booster-label {
+    font-size: 8px;
+  }
+
+  .booster-ad-badge {
+    width: 20px;
+    height: 18px;
+  }
+
+  .booster-timer {
+    font-size: 10px;
+    padding: 1px 5px;
+  }
 
   /* Seletor de ataque compacto acima do botão de ataque */
   .weapon-select {
     bottom: calc(max(24px, env(safe-area-inset-bottom)) + 182px);
     gap: 6px;
   }
-  .weapon-btn { width: auto; padding: 8px 10px; }
-  .weapon-name { display: none; }
-  .weapon-icon { font-size: 19px; }
 
-  .mob-bar { width: 62px; margin-left: -31px; }
-  .mob-bar-name { font-size: 9.5px; }
-  .dmg-num { font-size: 15px; }
-  .dmg-num.crit { font-size: 20px; }
+  .weapon-btn {
+    width: auto;
+    padding: 8px 10px;
+  }
+
+  .weapon-name {
+    display: none;
+  }
+
+  .weapon-icon {
+    font-size: 19px;
+  }
+
+  .mob-bar {
+    width: 62px;
+    margin-left: -31px;
+  }
+
+  .mob-bar-name {
+    font-size: 9.5px;
+  }
+
+  .dmg-num {
+    font-size: 15px;
+  }
+
+  .dmg-num.crit {
+    font-size: 20px;
+  }
 
   .panel {
     width: min(380px, 100%);
     padding: 20px 16px;
     gap: 12px;
   }
+
   .panel .primary-btn {
     padding: 11px 20px;
     font-size: 15px;
     margin-top: 10px;
     border-radius: 12px;
   }
+
   .panel .ready-btn {
     margin-top: 10px;
   }
+
   .controls-hint {
     font-size: 11px;
     line-height: 1.45;
     overflow-wrap: break-word;
   }
-  .gameover-stats span { font-size: 19px; }
+
+  .gameover-stats span {
+    font-size: 19px;
+  }
 }
 
 /* Paisagem em celular: altura curta, tudo encolhe e sai do centro */
 @media (max-height: 480px) and (orientation: landscape) {
+
   /* Altura da linha do topo encolhe junto com os ícones */
-  :root { --hud-top-h: 36px; }
-  .booster-btn { width: auto; padding: 0 9px; }
-  .booster-ad { width: 22px; height: 22px; font-size: 12px; }
-  .booster-title-short { font-size: 9.5px; }
-  .booster-timer { font-size: 10.5px; }
+  :root {
+    --hud-top-h: 36px;
+  }
+
+  .booster-panel {
+    gap: 8px;
+  }
+
+  .booster-graphic {
+    width: 42px;
+    height: 42px;
+  }
+
+  .booster-label {
+    font-size: 7.5px;
+  }
+
+  .booster-ad-badge {
+    width: 17px;
+    height: 15px;
+  }
+
+  .booster-timer {
+    font-size: 9.5px;
+    padding: 1px 4px;
+  }
 
   .hud-bottom {
     bottom: max(8px, env(safe-area-inset-bottom));
     width: min(520px, calc(100vw - 230px));
     padding: 6px 8px;
   }
-  .bar { height: 15px; }
-  .bar-text { font-size: 9.5px; }
 
-  .joystick.joystick-zone { height: 78vh; }
-  .zoom-slider { padding: 0 9px; }
-  .zoom-range::-webkit-slider-thumb { width: 15px; height: 15px; margin-top: -5.5px; }
-  .zoom-range::-moz-range-thumb { width: 15px; height: 15px; }
-  .joystick-base { width: 106px; height: 106px; }
-  .joystick-knob { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+  .bar {
+    height: 15px;
+  }
+
+  .bar-text {
+    font-size: 9.5px;
+  }
+
+  .joystick.joystick-zone {
+    height: 78vh;
+  }
+
+  .zoom-slider {
+    padding: 0 9px;
+  }
+
+  .zoom-range::-webkit-slider-thumb {
+    width: 15px;
+    height: 15px;
+    margin-top: -5.5px;
+  }
+
+  .zoom-range::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+  }
+
+  .joystick-base {
+    width: 106px;
+    height: 106px;
+  }
+
+  .joystick-knob {
+    width: 46px;
+    height: 46px;
+    margin: -23px 0 0 -23px;
+  }
 
   .attack-btn {
     width: 74px;
@@ -167,33 +330,45 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
     bottom: max(12px, env(safe-area-inset-bottom));
     flex-direction: row;
   }
-  .weapon-btn { width: auto; padding: 7px 9px; }
-  .weapon-name { display: none; }
+
+  .weapon-btn {
+    width: auto;
+    padding: 7px 9px;
+  }
+
+  .weapon-name {
+    display: none;
+  }
 
   .panel {
     padding: clamp(10px, 2.6vh, 16px) clamp(14px, 3vw, 20px);
     gap: clamp(5px, 1.3vh, 8px);
     max-height: calc(100dvh - 16px);
   }
+
   .start-panel {
     padding: clamp(10px, 2.6vh, 16px) clamp(16px, 3.5vw, 24px);
     gap: clamp(5px, 1.3vh, 8px);
   }
+
   .game-title {
     font-size: clamp(20px, 5.2vh, 28px);
     line-height: 0.95;
   }
+
   .tagline {
     display: block;
     font-size: clamp(10.5px, 2.2vh, 12.5px);
     opacity: 0.8;
   }
+
   .controls-hint {
     display: block;
     font-size: clamp(9.5px, 1.9vh, 11px);
     line-height: 1.35;
     opacity: 0.72;
   }
+
   .controls-hint b {
     padding: 1px 5px;
     font-size: clamp(9px, 1.8vh, 10.5px);
@@ -207,52 +382,76 @@ body.is-touch .booster-btn:not(:has(.booster-timer:not([hidden]))) .booster-ad {
     border-radius: 10px;
     box-shadow: 0 4px 14px rgba(126, 200, 80, 0.35);
   }
+
   .panel .ready-btn {
     margin-top: clamp(4px, 1vh, 8px);
   }
+
   .panel .ghost-btn {
     padding: clamp(6px, 1.3vh, 9px) clamp(14px, 3vw, 18px);
     font-size: clamp(11px, 2vh, 13px);
     border-radius: 9px;
   }
+
   .panel .menu-row {
     padding: clamp(6px, 1.3vh, 9px) clamp(12px, 2.5vw, 16px);
     font-size: clamp(11px, 2vh, 13px);
     border-radius: 9px;
   }
+
   .panel h2 {
     font-size: clamp(16px, 3.4vh, 20px);
   }
+
   .start-loading {
     margin-top: clamp(4px, 1vh, 8px);
     gap: 6px;
   }
+
   .loading-track {
     height: 8px;
   }
+
   .loading-status {
     font-size: 11px;
   }
+
   .gameover-stats {
     gap: 6px;
     margin: 2px 0;
   }
+
   .gameover-stats div {
     padding: 6px 4px;
     border-radius: 9px;
   }
+
   .gameover-stats span {
     font-size: 17px;
   }
+
   .gameover-stats small {
     font-size: 9px;
   }
-  .ad-fake { aspect-ratio: 16 / 7; }
+
+  .ad-fake {
+    aspect-ratio: 16 / 7;
+  }
 }
 
 /* Preferência por menos movimento */
 @media (prefers-reduced-motion: reduce) {
-  .evo-bar .bar-fill::after { animation: none; }
-  .overlay, .panel, .biome-card { animation: none; }
-  .bar-fill { transition: none; }
+  .evo-bar .bar-fill::after {
+    animation: none;
+  }
+
+  .overlay,
+  .panel,
+  .biome-card {
+    animation: none;
+  }
+
+  .bar-fill {
+    transition: none;
+  }
 }
