@@ -441,7 +441,8 @@ body.is-touch .booster-ad-badge {
 
 /* Preferência por menos movimento */
 @media (prefers-reduced-motion: reduce) {
-  .evo-bar .bar-fill::after {
+  .evo-bar .bar-fill::after,
+  .booster-btn:not(.active) .booster-graphic {
     animation: none;
   }
 

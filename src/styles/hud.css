@@ -239,7 +239,28 @@ body {
   color: #81d4fa;
 }
 
-/* Estado Ativo: Aura de brilho em volta do ícone */
+/* Animação pulsante quando inativo para atrair a atenção do jogador */
+.booster-btn:not(.active):not(.pending) .booster-graphic {
+  animation: booster-idle-pulse 1.8s ease-in-out infinite;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+#booster-evo:not(.active):not(.pending) .booster-graphic {
+  animation-delay: 0.35s;
+}
+
+@keyframes booster-idle-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+/* Estado Ativo: Aura de brilho em volta do ícone (permanece na forma original) */
 #booster-atk.active .booster-graphic {
   filter: drop-shadow(0 0 10px rgba(255, 152, 0, 0.75)) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
   animation: pulse-atk 2s ease-in-out infinite alternate;
