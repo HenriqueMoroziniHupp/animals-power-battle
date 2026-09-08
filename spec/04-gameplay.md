@@ -12,8 +12,9 @@ Todos os números vivem em `src/config/balance.js`.
 | 16 | Pantera | 400 | 44 |
 | 22 | Urso | 640 | 66 |
 | 28 | Big Kong | 1000 | 105 |
+| 34 | Super Calango | 1600 | 180 |
 
-- EVO para subir de nível: `90 * 1.18^(n-1)`
+- EVO para subir de nível: `90 * 1.09^(n-1)`
 - HP no nível n: `base + (n-1) * base * 0.16`
 - ATK no nível n: `base + (n-1) * base * 0.22`
 - Level up cura por completo
