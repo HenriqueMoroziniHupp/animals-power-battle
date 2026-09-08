@@ -10,6 +10,8 @@ export class ZoomSlider {
     try {
       saved = Number(localStorage.getItem(KEY))
     } catch {}
+    // Se o valor salvo for 55 (antigo padrão fechado), migra para o novo padrão mais amplo
+    if (saved === 55) saved = NaN
     const initial = Number.isFinite(saved) && saved >= Number(range.min) && saved <= Number(range.max)
       ? saved
       : Number(range.value)

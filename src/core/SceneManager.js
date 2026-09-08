@@ -24,7 +24,7 @@ export class SceneManager {
 
     this.scene = new THREE.Scene()
 
-    this.baseFov = 55
+    this.baseFov = 80
     this.camera = new THREE.PerspectiveCamera(
       this.baseFov,
       window.innerWidth / window.innerHeight,
