@@ -1,3 +1,5 @@
+import { BackgroundMusic } from './BackgroundMusic.js'
+
 /**
  * Áudio 100% sintetizado em runtime (Web Audio API).
  * Sem nenhum arquivo de som — mantém o bundle mínimo, requisito das
@@ -18,6 +20,8 @@ export class AudioManager {
     }
     this._flameNodes = null
     this._noiseBuffer = null
+    /** @type {BackgroundMusic|null} */
+    this.bgm = null
   }
 
   /** Chamado no primeiro clique/toque. */
@@ -30,6 +34,16 @@ export class AudioManager {
     this.master.gain.value = this.muted ? 0 : 0.5
     this.master.connect(this.ctx.destination)
     this._noiseBuffer = this._makeNoise(1.0)
+    this.bgm = new BackgroundMusic(this.ctx, this.master)
+  }
+
+  startMusic() {
+    this.init()
+    this.bgm?.start()
+  }
+
+  stopMusic() {
+    this.bgm?.stop()
   }
 
   resume() {

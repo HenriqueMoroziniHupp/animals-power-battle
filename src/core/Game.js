@@ -232,6 +232,7 @@ export class Game {
   startGame() {
     this.audio.init()
     this.audio.resume()
+    this.audio.startMusic()
     this.overlays.hideStart()
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
@@ -325,6 +326,7 @@ export class Game {
     this.state.set(STATE.PLAYING)
     this.input.setEnabled(true)
     this.audio.resume()
+    this.audio.startMusic()
     AdManager.gameplayStart()
   }
 
@@ -358,6 +360,9 @@ export class Game {
     this.audio.init()
     this.audio.setMuted(!this.audio.muted)
     this.overlays.setSoundState(!this.audio.muted)
+    if (!this.audio.muted && (this.state.is(STATE.PLAYING) || this.state.is(STATE.MENU))) {
+      this.audio.startMusic()
+    }
   }
 
   toggleQuality() {
