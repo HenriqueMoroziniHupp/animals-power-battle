@@ -47,10 +47,14 @@ export class AudioManager {
   }
 
   resume() {
-    if (this.ctx?.state === 'suspended') this.ctx.resume()
+    if (this.ctx?.state === 'suspended') {
+      this.ctx.resume().catch(() => {})
+    }
   }
   suspend() {
-    if (this.ctx?.state === 'running') this.ctx.suspend()
+    if (this.ctx?.state === 'running') {
+      this.ctx.suspend().catch(() => {})
+    }
   }
 
   setMuted(m) {

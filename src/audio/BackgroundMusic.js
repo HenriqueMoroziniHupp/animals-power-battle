@@ -248,6 +248,13 @@ export class BackgroundMusic {
     const lookahead = 0.1
     this._timerId = setInterval(() => {
       if (!this._isPlaying || this.ctx.state !== 'running') return
+
+      // Se o tempo acumulado ficou para trás (ex: aba em segundo plano ou suspensa),
+      // reposiciona o cursor no tempo atual para evitar rajada de nós de áudio acumulados.
+      if (this._nextNoteTime < this.ctx.currentTime) {
+        this._nextNoteTime = this.ctx.currentTime + 0.05
+      }
+
       while (this._nextNoteTime < this.ctx.currentTime + lookahead) {
         this._playStep(this._currentStep, this._nextNoteTime)
         this._currentStep = (this._currentStep + 1) % TOTAL_STEPS

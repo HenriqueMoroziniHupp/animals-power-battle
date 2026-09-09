@@ -190,12 +190,16 @@ export class Game {
     this._spawnTimer = 0
     this._needsRender = true
     this._lastFrameTime = 0
+    this._pausedByVisibility = false
 
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) {
         // Salva ANTES de pausar: no mobile a aba pode ser descartada sem aviso.
         this.saves.save(this.player)
-        if (this.state.is(STATE.PLAYING)) this.pause()
+        if (this.state.is(STATE.PLAYING)) {
+          this._pausedByVisibility = true
+          this.pause()
+        }
         // Suspende o rAF completamente em abas em segundo plano: 0% de CPU
         if (this._raf) {
           cancelAnimationFrame(this._raf)
@@ -207,6 +211,10 @@ export class Game {
         this._needsRender = true
         this.clock.getDelta() // descarta delta acumulado fora da aba
         this._lastFrameTime = performance.now()
+        if (this._pausedByVisibility) {
+          this._pausedByVisibility = false
+          this.resume()
+        }
         if (!this._raf) {
           this._loop()
         }
