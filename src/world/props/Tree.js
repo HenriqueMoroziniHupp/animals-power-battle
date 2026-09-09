@@ -19,7 +19,7 @@ export const TreeProp = {
    */
   build(biome, rng) {
     const g = new THREE.Group()
-    const trunkColor = biome.id === 'rocky' ? 0x6b5a48 : 0x6b4a2f
+    const trunkColor = biome.id === 'rocky' ? 0x3d3027 : 0x6b4a2f
     const leafBase = biome.ground.high
 
     const scale = 0.85 + rng() * 0.55
@@ -47,18 +47,15 @@ export const TreeProp = {
       canopy2.position.y = trunkH + 0.6 * scale
       g.add(canopy2)
     } else if (biome.id === 'rocky') {
-      // Retorcida: poucas folhas, galhos angulosos.
+      // Pinheiro nevado: cones empilhados com camadas de neve fresca no topo.
       for (let i = 0; i < 3; i++) {
-        const blob = new THREE.Mesh(
-          new THREE.IcosahedronGeometry((0.6 + rng() * 0.35) * scale, 0),
-          mat(i % 2 ? 0x5f7f42 : leafBase),
+        const r = (1.3 - i * 0.32) * scale
+        const cone = new THREE.Mesh(
+          new THREE.ConeGeometry(r, 1.45 * scale, 6),
+          mat(i === 2 ? 0xf8fbff : i === 1 ? 0xcbe3f5 : 0x294957),
         )
-        blob.position.set(
-          (rng() - 0.5) * 1.1 * scale,
-          trunkH + 0.3 * scale + i * 0.42 * scale,
-          (rng() - 0.5) * 1.1 * scale,
-        )
-        g.add(blob)
+        cone.position.y = trunkH + 0.35 * scale + i * 0.85 * scale
+        g.add(cone)
       }
     } else {
       // Conífera: cones empilhados.

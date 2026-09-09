@@ -83,8 +83,8 @@ export const LOCALES = {
         desc: 'Predadores maiores. Recompensas maiores.',
       },
       rocky: {
-        name: 'MONTANHAS ROCHOSAS',
-        desc: 'O território dos gigantes.',
+        name: 'MONTANHAS NEVADAS',
+        desc: 'O reino congelado onde só os gigantes sobrevivem.',
       },
       forestFinal: {
         name: 'FLORESTA ANCESTRAL',
@@ -186,8 +186,8 @@ export const LOCALES = {
         desc: 'Bigger predators. Greater rewards.',
       },
       rocky: {
-        name: 'ROCKY MOUNTAINS',
-        desc: 'The territory of giants.',
+        name: 'SNOWY PEAKS',
+        desc: 'The frozen realm of giants.',
       },
       forestFinal: {
         name: 'ANCESTRAL FOREST',

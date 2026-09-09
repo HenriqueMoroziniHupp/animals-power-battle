@@ -12,7 +12,7 @@ export const BushProp = {
   build(biome, rng) {
     const g = new THREE.Group()
     const scale = 0.7 + rng() * 0.5
-    const c = biome.id === 'savanna' ? 0x8a9440 : biome.id === 'rocky' ? 0x5f7448 : 0x4f8f35
+    const c = biome.id === 'savanna' ? 0x8a9440 : biome.id === 'rocky' ? 0x2d5060 : 0x4f8f35
 
     const n = 2 + Math.floor(rng() * 2)
     for (let i = 0; i < n; i++) {

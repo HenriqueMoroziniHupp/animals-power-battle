@@ -31,7 +31,7 @@ export const RockProp = {
     for (let i = 0; i < n; i++) {
       const chip = new THREE.Mesh(
         new THREE.DodecahedronGeometry(0.3 * scale, 0),
-        mat(biome.id === 'rocky' ? 0x6f7874 : base),
+        mat(biome.id === 'rocky' ? 0x2b3847 : base),
       )
       chip.position.set(
         (rng() - 0.5) * 1.5 * scale,
@@ -42,10 +42,12 @@ export const RockProp = {
       g.add(chip)
     }
 
-    // Veio mineral brilhante: sinaliza que dá EVO.
+    // Veio mineral brilhante: sinaliza que dá EVO (cristal de gelo mágico na neve).
     const vein = new THREE.Mesh(
       new THREE.IcosahedronGeometry(0.22 * scale, 0),
-      mat(0x4fc3f7, { emissive: 0x123d52 }),
+      mat(biome.id === 'rocky' ? 0x00f0ff : 0x4fc3f7, {
+        emissive: biome.id === 'rocky' ? 0x007799 : 0x123d52,
+      }),
     )
     vein.position.set(0, 0.95 * scale, 0.32 * scale)
     g.add(vein)
