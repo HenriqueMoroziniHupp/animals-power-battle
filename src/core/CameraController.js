@@ -18,7 +18,7 @@ export class CameraController {
     this.distance = 15
     this.targetDistance = 15
     this.height = 8
-    this.pitch = 0.42
+    this.pitch = 0
 
     /** Força do damping: maior = mais responsivo. */
     this.followK = 7.5
